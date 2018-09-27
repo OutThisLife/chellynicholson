@@ -102,8 +102,10 @@ app.prepare().then(() => {
           return resolve()
         })
 
-        .get('/', render('/index'))
-        .get('/:slug([a-zA-Z0-9.-]+)', render('/page'))
+        .get('/', render('/home'))
+        .get('/blog', render('/blog'))
+        .get('/blog/:slug([a-zA-Z0-9.-]+)', render('/blog/single'))
+        .get('/:slug([a-zA-Z0-9.-]+)', render('/home/single'))
         .get('*', handle as RequestHandlerParams)
 
         .listen(port, err => {

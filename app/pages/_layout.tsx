@@ -1,9 +1,9 @@
+import Footer from '@/components/footer'
 import Header from '@/components/header'
-import Sidebar from '@/components/sidebar'
 import themeVars from '@/theme'
 import { RouterProps, withRouter } from 'next/router'
 import { compose, withProps } from 'recompose'
-import styled, { ThemeProvider } from 'styled-components'
+import { ThemeProvider } from 'styled-components'
 
 interface TOutter {
   render: (a?: any) => JSX.Element
@@ -26,27 +26,14 @@ export default compose<TInner & TOutter, TOutter>(
   }))
 )(({ render, getKey }) => (
   <ThemeProvider theme={themeVars}>
-    <Main key="main">
-      <Header key={getKey('header')} />
+    <>
+      <Header />
 
-      <section>
-        <Sidebar key={getKey('sidebar')} />
-        <div key="app">{render({ getKey })}</div>
-      </section>
-    </Main>
+      <main key="main">
+        {render({ getKey })}
+      </main>
+
+      <Footer />
+    </>
   </ThemeProvider>
 ))
-
-const Main = styled.main`
-  display: grid;
-  grid-template-columns: 1fr;
-  grid-template-rows: auto 1fr;
-  height: 100vh;
-
-  > section {
-    display: grid;
-    grid-template-columns: 200px 1fr;
-    grid-template-rows: 1fr;
-    position: relative;
-  }
-`

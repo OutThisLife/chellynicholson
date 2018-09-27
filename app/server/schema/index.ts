@@ -15,7 +15,12 @@ export const resolvers: IResolvers = {
 export const typeDefs = gql`
   scalar JSON
 
-  type Query {
+  type Page {
+    id: ID!
+    title: String
+  }
 
+  type Query {
+    page(id: ID!): Page
   }
 `
