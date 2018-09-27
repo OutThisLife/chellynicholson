@@ -17,10 +17,11 @@ interface THandles {
 export default compose<THandles & TOutter, TOutter>(
   withHandlers<TOutter, THandles>(() => ({
     toggle: ({ target: { el, isOpen } }) => () => {
+      const $header = document.querySelector('header')
       const targets = document.getElementById('single')
-      const { innerWidth, innerHeight } = window
 
       window.requestAnimationFrame(() => {
+        const { innerWidth, innerHeight } = window
         const { top, right, bottom, left } = el.getBoundingClientRect()
 
         const t = Math.round(top)
@@ -34,6 +35,7 @@ export default compose<THandles & TOutter, TOutter>(
           window.requestAnimationFrame(() => anime({
             targets,
             easing: 'easeOutExpo',
+            run: ({ progress }) => progress >= 20 && $header.classList.add('invert'),
             opacity: {
               duration: 70,
               value: 1
@@ -53,6 +55,7 @@ export default compose<THandles & TOutter, TOutter>(
           window.requestAnimationFrame(() => anime({
             targets,
             easing: 'easeOutExpo',
+            run: () => $header.classList.remove('invert'),
             opacity: {
               duration: 300,
               delay: 200,
@@ -63,7 +66,7 @@ export default compose<THandles & TOutter, TOutter>(
                 duration: 300,
                 value: clip
               }
-            ]
+            ],
           }))
         }
       })
@@ -128,28 +131,30 @@ const Single = styled.div`
 
       &:not(:nth-child(2)) {
         z-index: 1;
-        width: 50%;
+        width: 40%;
         height: 100%;
       }
 
       &:first-child {
+        cursor: url(/static/img/icon-left.svg), auto;
         left: 0;
-        width: 32px;
-        height: 32px;
-        cursor: url(/static/img/icon-left.svg) 10 20, auto;
+        background: linear-gradient(to right, #00000047, transparent);
       }
 
       &:nth-child(2) {
         z-index: 2;
         left: 50%;
         bottom: ${size(1)};
+        width: 32px;
+        height: 32px;
         transform: translateX(-50%);
         background: url(/static/img/icon-x.svg) center / cover no-repeat;
       }
 
       &:last-child {
+        cursor: url(/static/img/icon-right.svg), auto;
         right: 0;
-        cursor: url(/static/img/icon-right.svg) 10 20, auto;
+        background: linear-gradient(to left, #00000047, transparent);
       }
     }
   }
@@ -159,6 +164,6 @@ const Single = styled.div`
     width: 100vw;
     height: 100vh;
     margin: 0;
-    background: fixed center / cover no-repeat;
+    background: fixed center top / cover no-repeat;
   }
 `

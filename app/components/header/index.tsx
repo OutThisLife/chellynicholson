@@ -1,5 +1,6 @@
 import { size } from '@/theme'
 import styled from 'styled-components'
+import { rgba } from 'polished'
 
 export default () => (
   <Header>
@@ -23,5 +24,10 @@ export const Header = styled.header`
     line-height: 0;
     padding: 10px 7px;
     transition: ${({ theme }) => theme.timings.base};
+  }
+
+  &.invert a {
+    color: ${({ theme }) => theme.colours.bg};
+    text-shadow: 1px 2px 3px ${({ theme }) => rgba(theme.colours.base, 0.3)};
   }
 `
