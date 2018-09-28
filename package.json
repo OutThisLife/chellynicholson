@@ -12,7 +12,7 @@
     "build:app": "next build ./app",
     "build:server": "tsc -p ./tsconfig.server.json",
     "build": "npm run build:app && npm run build:server",
-    "postinstall-prod": "npm run build",
+    "postinstall": "npm run build",
     "postinstall-dev": "types-installer",
     "fix": "tslint app/**/*.tsx --fix"
   },
