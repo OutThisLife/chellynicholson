@@ -9,6 +9,7 @@ export const colours = {
 
 export const fonts = {
   size: between('9px', '12px', '320px', '2000px'),
+  longform: between('12px', '16px'),
 
   family: {
     title: 'Elsie',
@@ -28,12 +29,17 @@ export const timings = {
 
 // ---------------------------
 
-export const Grid = styled.div`
+export const Grid = styled.div.attrs({
+  style: ({ center = false }: { center?: boolean }) => ({
+    minHeight: center && 'calc(100vh - ((100vh/40) * 9))',
+    alignItems: center && 'center'
+  })
+})`
   display: grid;
   grid-template-columns: repeat(40, 1fr);
   grid-template-rows: auto;
   width: 100%;
-`
+` as any
 
 export const size = (scale: number): string => `calc(${scale} * (100vmin / 40))`
 

@@ -34,7 +34,6 @@ export default class extends Document {
             font-size: ${fontVars.size};
             line-height: 1.75;
             letter-spacing: 0.18em;
-            text-transform: uppercase;
           }
 
           @media (max-width: 2000px) {
@@ -74,6 +73,11 @@ export default class extends Document {
               color: inherit;
               text-decoration: underline;
             }
+
+          svg, img, iframe, object {
+            max-width: 100%;
+            height: auto;
+          }
 
           #app *::-webkit-scrollbar {
             width: 3px;

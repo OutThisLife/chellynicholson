@@ -11,19 +11,16 @@ interface THandles {
 export default withHandlers<{}, THandles>(() => ({
   openStory: () => ({ currentTarget }) => {
     const $single = document.getElementById('single')
+    const $story = $single.querySelector('figcaption')
 
-    if ($single) {
-      const $story = $single.querySelector('figcaption')
+    if ($story) {
+      currentTarget.classList.toggle('invert')
+      $story.classList.toggle('open')
 
-      if ($story) {
-        currentTarget.classList.toggle('invert')
-        $story.classList.toggle('open')
-
-        if ($story.classList.contains('open')) {
-          currentTarget.textContent = 'close'
-        } else {
-          currentTarget.textContent = 'story'
-        }
+      if ($story.classList.contains('open')) {
+        currentTarget.textContent = 'close'
+      } else {
+        currentTarget.textContent = 'story'
       }
     }
   }
@@ -31,12 +28,12 @@ export default withHandlers<{}, THandles>(() => ({
   <Header>
     <div>
       <Link href="/">
-        <a>chelly &Delta; nicholson</a>
+        <a id="logo">chelly &Delta; nicholson</a>
       </Link>
 
       <nav>
+        <Link href="/"><a>portfolio</a></Link>
         <Link href="/about"><a>about</a></Link>
-        <Link href="/portfolio"><a>portfolio</a></Link>
         <Link href="/blog"><a>writings</a></Link>
 
         <span>&mdash;&mdash;</span>
@@ -46,7 +43,7 @@ export default withHandlers<{}, THandles>(() => ({
       </nav>
     </div>
 
-    <a href="javascript:;" id="open-story" onClick={openStory}>
+    <a href="javascript:;" id="story" onClick={openStory}>
       story
     </a>
   </Header>
@@ -65,15 +62,21 @@ export const Header = styled.header`
   a {
     line-height: 0;
     padding: 10px 7px;
+    text-transform: lowercase;
     transition: ${({ theme }) => theme.timings.base};
 
-    &#open-story:not(.show) {
+    &#logo {
+      text-transform: uppercase;
+    }
+
+    &#story:not(.show) {
       visibility: hidden;
       pointer-events: none;
     }
   }
 
-  &.invert a {
+  &.invert a,
+  &.invert span {
     color: ${({ theme }) => theme.colours.bg};
     text-shadow: 1px 2px 3px ${({ theme }) => rgba(theme.colours.base, 0.3)};
 
@@ -86,7 +89,6 @@ export const Header = styled.header`
 
   nav {
     display: inline-flex;
-    text-transform: lowercase;
     margin-left: ${size(2)};
 
     span {

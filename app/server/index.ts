@@ -103,8 +103,12 @@ app.prepare().then(() => {
         })
 
         .get('/', render('/home'))
+
         .get('/blog', render('/blog'))
         .get('/blog/:slug([a-zA-Z0-9.-]+)', render('/blog/single'))
+
+        .get('/about', render('/about'))
+
         .get('/:slug([a-zA-Z0-9.-]+)', render('/home/single'))
         .get('*', handle as RequestHandlerParams)
 

@@ -41,4 +41,13 @@ const Main = styled.main`
   @media (max-width: 768px) {
     padding: ${size(8)} 0;
   }
+
+  h2 {
+    font-size: 3rem;
+    line-height: 1.5;
+  }
+
+  p, q, blockquote {
+    quotes: "\\201C" "\\201D" "\\2018" "\\2019";
+  }
 `

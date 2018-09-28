@@ -1,9 +1,8 @@
 import Gallery, { Card } from '@/components/gallery'
 import Quote from '@/components/quote'
+import Slideshow from '@/components/slideshow'
 import { Grid } from '@/theme'
 import { compose, withHandlers, withState } from 'recompose'
-
-import Single from './single'
 
 interface TInner {
   animTarget?: HTMLElement
@@ -25,12 +24,12 @@ export default compose<TInner & THandlers & TState, TInner>(
     onMove: () => ({ clientX, clientY, target, currentTarget }) => {
       const { innerWidth, innerHeight } = window
 
-      const x = clientX - (innerWidth / 2)
-      const y = clientY - (innerHeight / 2)
+      const x = clientX - innerWidth / 2
+      const y = clientY - innerHeight / 2
 
       if (target instanceof HTMLElement && target.classList.contains('card-bg')) {
         const { clientWidth } = target.nextElementSibling.firstElementChild
-        const cx = Math.min(innerWidth - clientWidth, clientX - (clientWidth / 2))
+        const cx = Math.min(innerWidth - clientWidth, clientX - clientWidth / 2)
 
         currentTarget.style.setProperty('--captionX', `${Math.max(-10, cx)}px`)
       }
@@ -66,10 +65,7 @@ export default compose<TInner & THandlers & TState, TInner>(
         const b = Math.round(innerHeight - bottom)
         const l = Math.round(left)
 
-        $single.style.setProperty(
-          '--clip',
-          `inset(${t}px ${r}px ${b}px ${l}px)`
-        )
+        $single.style.setProperty('--clip', `inset(${t}px ${r}px ${b}px ${l}px)`)
       }, 150)
     },
     onReset: ({ setAnimTarget, animTarget }) => () => {
@@ -86,15 +82,42 @@ export default compose<TInner & THandlers & TState, TInner>(
   }))
 )(({ animTarget, onMove, onMouse, onReset }) => (
   <Grid onMouseMove={onMove}>
-    <Single animTarget={animTarget} reset={onReset} />
+    <Slideshow
+      id="single"
+      reset={onReset}
+      data={
+        animTarget
+          ? {
+              slides: ['//picsum.photos/1920/1050/?random', '//picsum.photos/1600/1050/?random'],
+              title: 'My wife is beautiful!',
+              copy: `<p>
+                  Lorem ipsum dolor sit amet consectetur, adipisicing elit. Ratione, nemo vitae. Alias, rem illo?
+                  Explicabo doloremque voluptatem ab mollitia impedit molestias tempore velit ea rerum? Ratione
+                  doloribus nam quod eaque?
+                </p>
+                <p>
+                  Lorem ipsum dolor sit amet consectetur, adipisicing elit. Ratione, nemo vitae. Alias, rem illo?
+                  Explicabo doloremque voluptatem ab mollitia impedit molestias tempore velit ea rerum? Ratione
+                  doloribus nam quod eaque?
+                </p>
+                <p>
+                  Lorem ipsum dolor sit amet consectetur, adipisicing elit. Ratione, nemo vitae. Alias, rem illo?
+                  Explicabo doloremque voluptatem ab mollitia impedit molestias tempore velit ea rerum? Ratione
+                  doloribus nam quod eaque?
+                </p>
+                <p>
+                  Lorem ipsum dolor sit amet consectetur, adipisicing elit. Ratione, nemo vitae. Alias, rem illo?
+                  Explicabo doloremque voluptatem ab mollitia impedit molestias tempore velit ea rerum? Ratione
+                  doloribus nam quod eaque?
+                </p>`
+            }
+          : { slides: [] }
+      }
+    />
 
     <Gallery variant="fancy">
       {[...Array(5).keys()].map(i => (
-        <Card
-          key={`card-${i}`}
-          img={`//picsum.photos/1200/${!(i % 2) ? 800 : 800}/?random`}
-          onMouse={onMouse}
-        />
+        <Card key={`card-${i}`} img={`//picsum.photos/1200/${!(i % 2) ? 800 : 800}/?random`} onMouse={onMouse} />
       ))}
     </Gallery>
 
@@ -102,11 +125,7 @@ export default compose<TInner & THandlers & TState, TInner>(
 
     <Gallery>
       {[...Array(9).keys()].map(i => (
-        <Card
-          key={`card-${i}`}
-          img={`//picsum.photos/1200/${!(i % 2) ? 800 : 800}/?random`}
-          onMouse={onMouse}
-        />
+        <Card key={`card-${i}`} img={`//picsum.photos/1200/${!(i % 2) ? 800 : 800}/?random`} onMouse={onMouse} />
       ))}
     </Gallery>
   </Grid>

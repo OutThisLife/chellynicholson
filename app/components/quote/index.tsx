@@ -10,8 +10,6 @@ export default () => (
 
 const Quote = styled.blockquote`
   grid-column: 12 / -12;
-  text-transform: initial;
-  quotes: "\\201C" "\\201D" "\\2018" "\\2019";
   margin: ${size(2)} auto 0;
   padding: ${size(4)} ${size(1)};
 

@@ -22,6 +22,7 @@ const Caption = styled.figcaption`
     color: ${({ theme }) => theme.colours.base};
     font-size: 10vmax;
     font-weight: 500;
+    text-transform: uppercase;
     margin: 0;
     transform: translate3d(calc(0% + var(--captionX, 0px)), calc(0% + var(--mouseY, 0)), 0);
 
