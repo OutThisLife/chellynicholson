@@ -1,169 +1,121 @@
-import { size } from '@/theme'
-import anime from 'animejs'
+import Slideshow from '@/components/slideshow'
+import faker from 'faker'
 import { compose, withHandlers, withPropsOnChange } from 'recompose'
 import styled from 'styled-components'
 
-import { AnimTarget } from '.'
-
 interface TOutter {
-  target?: AnimTarget
+  animTarget?: HTMLElement
+  reset: () => void
 }
 
 interface THandles {
-  toggle?: () => void
+  toggle?: (isOpen: boolean) => void
   exit?: React.MouseEventHandler<any>
 }
 
 export default compose<THandles & TOutter, TOutter>(
   withHandlers<TOutter, THandles>(() => ({
-    toggle: ({ target: { el, isOpen } }) => () => {
-      const $header = document.querySelector('header')
-      const targets = document.getElementById('single')
-
+    toggle: ({ reset }) => (isOpen = false) =>
       window.requestAnimationFrame(() => {
-        const { innerWidth, innerHeight } = window
-        const { top, right, bottom, left } = el.getBoundingClientRect()
+        const $single = document.getElementById('single')
+        const $header = document.querySelector('header')
+        const $story = $header.querySelector('a:last-child')
 
-        const t = Math.round(top)
-        const r = Math.round(innerWidth - right - 20)
-        const b = Math.round(innerHeight - bottom)
-        const l = Math.round(left)
+        if (isOpen) {
+          ;(window as any).lastY = window.scrollY
 
-        const clip = `inset(${t}px ${r}px ${b}px ${l}px)`
+          $story.textContent = 'story'
+          $single.classList.add('in')
 
-        if (isOpen()) {
-          window.requestAnimationFrame(() => anime({
-            targets,
-            easing: 'easeOutExpo',
-            run: ({ progress }) => progress >= 20 && $header.classList.add('invert'),
-            opacity: {
-              duration: 70,
-              value: 1
-            },
-            clipPath: [
-              {
-                duration: 0,
-                value: clip
-              },
-              {
-                duration: 300,
-                value: 'inset(0px 0% 0% 0px)'
-              }
-            ]
-          }))
-        } else {
-          window.requestAnimationFrame(() => anime({
-            targets,
-            easing: 'easeOutExpo',
-            run: () => $header.classList.remove('invert'),
-            opacity: {
-              duration: 300,
-              delay: 200,
-              value: 0
-            },
-            clipPath: [
-              {
-                duration: 300,
-                value: clip
-              }
-            ],
-          }))
+          window.requestAnimationFrame(() => {
+            $header.classList.add('invert')
+
+            document.body.style.position = 'fixed'
+            document.body.style.top = `${-window.scrollY}px`
+            document.body.style.height = '100vh'
+
+            window.scrollTo(0, 0)
+
+            $story.classList.add('show')
+          })
+
+          return
         }
+
+        $single.classList.remove('in')
+
+        window.requestAnimationFrame(() => {
+          $header.classList.remove('invert')
+          $story.className = ''
+          document.body.style.position = ''
+          document.body.style.top = ''
+          document.body.style.height = ''
+
+          window.scrollTo(0, (window as any).lastY)
+          reset()
+        })
       })
-    }
   })),
   withHandlers<TOutter & THandles, THandles>(() => ({
-    exit: ({  target: { el }, toggle }) => ({ button }) => !button && (el.classList.remove('open') || toggle())
+    exit: ({ toggle }) => ({ button }) => !button && toggle(false)
   })),
-  withPropsOnChange<TOutter, TOutter & THandles>(['target'], props => {
+  withPropsOnChange<TOutter, TOutter & THandles>(['animTarget'], props => {
     if (typeof window === 'undefined') {
       return props
     }
 
-    if ('target' in props && props.target.el instanceof HTMLElement) {
-      props.toggle()
+    if (props.animTarget) {
+      props.toggle(true)
     }
 
     return props
   })
-)(({ exit, target: { el } }) => (
-  <Single id="single">
-    <nav>
-      <a href="javascript:;">Prev</a>
-      <a href="javascript:;" onClick={exit}>Exit</a>
-      <a href="javascript:;">Next</a>
-    </nav>
-
-    <figure style={{ backgroundImage: `url(${(el.children[0] as HTMLImageElement).src})` }} />
-  </Single>
+)(({ exit, animTarget }) => (
+  <Single
+    id="single"
+    onExit={exit}
+    slides={
+      !animTarget
+        ? []
+        : [
+            {
+              src: (animTarget.children[0] as HTMLImageElement).src,
+              copy: faker.lorem.words()
+            }
+          ]
+    }
+  />
 ))
 
-const Single = styled.div`
-  opacity: 0;
+const Single = styled(Slideshow)`
   z-index: 50;
-  pointer-events: none;
   position: fixed;
   top: 0;
   right: 0;
   bottom: 0;
   left: 0;
+  clip-path: var(--clip, inset(0% 0% 100% 0%));
+  transition: ${({ theme }) => theme.timings.base};
 
-  &[style*='opacity: 1'] {
-    pointer-events: auto;
+  &:not(.in) {
+    visibility: hidden;
+    pointer-events: none;
+  }
+
+  &.in {
+    --clip: inset(0% 0% 0% 0%) !important;
 
     + * {
       pointer-events: none;
     }
   }
 
-  nav {
-    z-index: 1;
-    position: absolute;
-    top: 0;
-    right: 0;
-    bottom: 0;
-    left: 0;
-
-    a {
-      display: block;
-      position: absolute;
-      color: transparent;
-
-      &:not(:nth-child(2)) {
-        z-index: 1;
-        width: 40%;
-        height: 100%;
-      }
-
-      &:first-child {
-        cursor: url(/static/img/icon-left.svg), auto;
-        left: 0;
-        background: linear-gradient(to right, #00000047, transparent);
-      }
-
-      &:nth-child(2) {
-        z-index: 2;
-        left: 50%;
-        bottom: ${size(1)};
-        width: 32px;
-        height: 32px;
-        transform: translateX(-50%);
-        background: url(/static/img/icon-x.svg) center / cover no-repeat;
-      }
-
-      &:last-child {
-        cursor: url(/static/img/icon-right.svg), auto;
-        right: 0;
-        background: linear-gradient(to left, #00000047, transparent);
-      }
-    }
-  }
-
   figure {
+    opacity: inherit;
     display: inline-block;
     width: 100vw;
     height: 100vh;
     margin: 0;
     background: fixed center top / cover no-repeat;
   }
-`
+` as any

@@ -1,5 +1,4 @@
 import { size } from '@/theme'
-import { rgba } from 'polished'
 import styled from 'styled-components'
 
 export default ({ name }: { name: string }) => (
@@ -21,7 +20,6 @@ const Caption = styled.figcaption`
   left: ${size(3)};
   text-align: center;
   will-change: transform;
-  mix-blend-mode: multiply;
   transform: translate3d(calc(var(--captionX, 0) * -1), calc(var(--captionY, 0) * -1), 0);
 
   .card-bg:not(:hover) ~ & {
@@ -33,25 +31,19 @@ const Caption = styled.figcaption`
     }
   }
 
-  .card-bg.open ~ & h1 {
-    opacity: 0;
-  }
-
   h1 {
     display: block;
     position: relative;
     width: 100%;
-    color: transparent;
+    color: ${({ theme }) => theme.colours.base};
     font-size: 15vmax;
-    font-weight: 400;
+    font-weight: 500;
     text-transform: none;
-    -webkit-text-stroke: 1px ${({ theme }) => rgba(theme.colours.base, 1)};
     margin: 0;
     transition: ${({ theme }) => theme.timings.base};
-    background-position: center;
-    background-repeat: no-repeat;
-    background-size: cover;
-    background-clip: text;
-    -webkit-background-clip: text;
+
+    @media (max-width: 768px) {
+      font-size: 8vmax;
+    }
   }
 `

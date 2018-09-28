@@ -29,7 +29,7 @@ export default compose<TInner & TOutter, TOutter>(
     <>
       <Header />
 
-      <main key="main">
+      <main id="app">
         {render({ getKey })}
       </main>
 

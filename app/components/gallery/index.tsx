@@ -12,4 +12,8 @@ const Gallery = styled.section`
   grid-gap: ${size(2)};
   position: relative;
   padding: ${size(4)} 0;
+
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+  }
 `
