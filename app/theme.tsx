@@ -32,6 +32,7 @@ export const Grid = styled.div`
   display: grid;
   grid-template-columns: repeat(40, 1fr);
   grid-template-rows: auto;
+  width: 100%;
 `
 
 export const size = (scale: number): string => `calc(${scale} * (100vmin / 40))`

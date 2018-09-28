@@ -1,4 +1,5 @@
 import Gallery, { Card } from '@/components/gallery'
+import Quote from '@/components/quote'
 import { Grid } from '@/theme'
 import { compose, withHandlers, withState } from 'recompose'
 
@@ -21,21 +22,28 @@ interface THandlers {
 export default compose<TInner & THandlers & TState, TInner>(
   withState('animTarget', 'setAnimTarget', undefined),
   withHandlers<TState & TInner, THandlers>(() => ({
-    onMove: () => ({ clientX, clientY, currentTarget }) => {
+    onMove: () => ({ clientX, clientY, target, currentTarget }) => {
       const { innerWidth, innerHeight } = window
 
-      const str = 10
-      const mx = innerWidth / 2
-      const my = innerHeight / 2
+      const x = clientX - (innerWidth / 2)
+      const y = clientY - (innerHeight / 2)
 
-      currentTarget.style.setProperty('--captionX', `${(clientX - mx) / str}px`)
-      currentTarget.style.setProperty('--captionY', `${(clientY - my) / str}px`)
+      if (target instanceof HTMLElement && target.classList.contains('card-bg')) {
+        const { clientWidth } = target.nextElementSibling.firstElementChild
+        const cx = Math.min(innerWidth - clientWidth, clientX - (clientWidth / 2))
+
+        currentTarget.style.setProperty('--captionX', `${Math.max(-10, cx)}px`)
+      }
+
+      currentTarget.style.setProperty('--mouseX', `${x}px`)
+      currentTarget.style.setProperty('--mouseY', `${y}px`)
     },
     onMouse: ({ setAnimTarget, animTarget }) => ({ button, type, currentTarget }) => {
       if (animTarget) {
         return
       }
 
+      const $single = document.getElementById('single')
       const $siblings = [].slice.call(document.getElementsByClassName('card-bg')).filter(el => el !== currentTarget)
 
       if (!button && type === 'mousedown') {
@@ -58,7 +66,7 @@ export default compose<TInner & THandlers & TState, TInner>(
         const b = Math.round(innerHeight - bottom)
         const l = Math.round(left)
 
-        document.getElementById('single').style.setProperty(
+        $single.style.setProperty(
           '--clip',
           `inset(${t}px ${r}px ${b}px ${l}px)`
         )
@@ -80,11 +88,23 @@ export default compose<TInner & THandlers & TState, TInner>(
   <Grid onMouseMove={onMove}>
     <Single animTarget={animTarget} reset={onReset} />
 
-    <Gallery>
-      {[...Array(3 * 3).keys()].map(i => (
+    <Gallery variant="fancy">
+      {[...Array(5).keys()].map(i => (
         <Card
           key={`card-${i}`}
-          img={`//picsum.photos/800/${!(i % 2) ? 600 : 800}/?image=${i % 2 ? 1025 : 1066}`}
+          img={`//picsum.photos/1200/${!(i % 2) ? 800 : 800}/?random`}
+          onMouse={onMouse}
+        />
+      ))}
+    </Gallery>
+
+    <Quote />
+
+    <Gallery>
+      {[...Array(9).keys()].map(i => (
+        <Card
+          key={`card-${i}`}
+          img={`//picsum.photos/1200/${!(i % 2) ? 800 : 800}/?random`}
           onMouse={onMouse}
         />
       ))}

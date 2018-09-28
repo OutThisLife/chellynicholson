@@ -19,7 +19,7 @@ export default compose<THandles & TOutter, TOutter>(
       window.requestAnimationFrame(() => {
         const $single = document.getElementById('single')
         const $header = document.querySelector('header')
-        const $story = $header.querySelector('a:last-child')
+        const $story = document.getElementById('open-story')
 
         if (isOpen) {
           ;(window as any).lastY = window.scrollY
@@ -31,10 +31,10 @@ export default compose<THandles & TOutter, TOutter>(
             $header.classList.add('invert')
 
             document.body.style.position = 'fixed'
-            document.body.style.top = `${-window.scrollY}px`
+            document.body.style.top = `${-(window as any).lastY}px`
             document.body.style.height = '100vh'
 
-            window.scrollTo(0, 0)
+            setTimeout(() => window.scrollTo(0, 0), 25)
 
             $story.classList.add('show')
           })
@@ -47,11 +47,12 @@ export default compose<THandles & TOutter, TOutter>(
         window.requestAnimationFrame(() => {
           $header.classList.remove('invert')
           $story.className = ''
+
           document.body.style.position = ''
           document.body.style.top = ''
           document.body.style.height = ''
 
-          window.scrollTo(0, (window as any).lastY)
+          setTimeout(() => window.scrollTo(0, (window as any).lastY), 25)
           reset()
         })
       })

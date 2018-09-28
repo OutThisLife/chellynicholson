@@ -1,4 +1,5 @@
 import { size } from '@/theme'
+import Link from 'next/link'
 import { rgba } from 'polished'
 import { withHandlers } from 'recompose'
 import styled from 'styled-components'
@@ -28,9 +29,24 @@ export default withHandlers<{}, THandles>(() => ({
   }
 }))(({ openStory }) => (
   <Header>
-    <a href="javascript:;">overview</a>
-    <a href="/">chelly &Delta; nicholson</a>
-    <a href="javascript:;" onClick={openStory}>
+    <div>
+      <Link href="/">
+        <a>chelly &Delta; nicholson</a>
+      </Link>
+
+      <nav>
+        <Link href="/about"><a>about</a></Link>
+        <Link href="/portfolio"><a>portfolio</a></Link>
+        <Link href="/blog"><a>writings</a></Link>
+
+        <span>&mdash;&mdash;</span>
+
+        <a href="//instagram.com" target="_blank" rel="noopener">instagram</a>
+        <a href="//instagram.com" target="_blank" rel="noopener">facebook</a>
+      </nav>
+    </div>
+
+    <a href="javascript:;" id="open-story" onClick={openStory}>
       story
     </a>
   </Header>
@@ -51,13 +67,7 @@ export const Header = styled.header`
     padding: 10px 7px;
     transition: ${({ theme }) => theme.timings.base};
 
-    &:first-of-type {
-      @media (max-width: 768px) {
-        display: none;
-      }
-    }
-
-    &:last-of-type:not(.show) {
+    &#open-story:not(.show) {
       visibility: hidden;
       pointer-events: none;
     }
@@ -71,6 +81,16 @@ export const Header = styled.header`
       @media (min-width: 768px) {
         color: ${({ theme }) => theme.colours.base};
       }
+    }
+  }
+
+  nav {
+    display: inline-flex;
+    text-transform: lowercase;
+    margin-left: ${size(2)};
+
+    span {
+      opacity: 0.3;
     }
   }
 `

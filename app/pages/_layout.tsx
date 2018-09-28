@@ -1,9 +1,8 @@
-import Footer from '@/components/footer'
 import Header from '@/components/header'
-import themeVars from '@/theme'
+import themeVars, { size } from '@/theme'
 import { RouterProps, withRouter } from 'next/router'
 import { compose, withProps } from 'recompose'
-import { ThemeProvider } from 'styled-components'
+import styled, { ThemeProvider } from 'styled-components'
 
 interface TOutter {
   render: (a?: any) => JSX.Element
@@ -29,11 +28,17 @@ export default compose<TInner & TOutter, TOutter>(
     <>
       <Header />
 
-      <main id="app">
+      <Main id="app">
         {render({ getKey })}
-      </main>
-
-      <Footer />
+      </Main>
     </>
   </ThemeProvider>
 ))
+
+const Main = styled.main`
+  padding: ${size(4)} 0;
+
+  @media (max-width: 768px) {
+    padding: ${size(8)} 0;
+  }
+`
