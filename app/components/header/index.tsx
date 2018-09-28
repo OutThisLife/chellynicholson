@@ -33,13 +33,11 @@ export default withHandlers<{}, THandles>(() => ({
 
       <nav>
         <Link href="/"><a>portfolio</a></Link>
-        <Link href="/about"><a>about</a></Link>
-        <Link href="/blog"><a>writings</a></Link>
+        <Link prefetch href="/about"><a>about</a></Link>
+        <Link prefetch href="/blog"><a>blog</a></Link>
 
-        <span>&mdash;&mdash;</span>
-
-        <a href="//instagram.com" target="_blank" rel="noopener">instagram</a>
-        <a href="//instagram.com" target="_blank" rel="noopener">facebook</a>
+        <a href="//instagram.com" target="_blank" rel="noopener">[ig]</a>
+        <a href="//instagram.com" target="_blank" rel="noopener">[fb]</a>
       </nav>
     </div>
 
@@ -57,9 +55,15 @@ export const Header = styled.header`
   position: fixed;
   top: 0;
   width: 100%;
+  white-space: nowrap;
   padding: ${size(1)};
 
+  @media (max-width: 768px) {
+    background: ${({ theme }) => theme.colours.bg};
+  }
+
   a {
+    display: inline-block;
     line-height: 0;
     padding: 10px 7px;
     text-transform: lowercase;
@@ -67,6 +71,12 @@ export const Header = styled.header`
 
     &#logo {
       text-transform: uppercase;
+
+      @media (max-width: 768px) {
+        width: 30vw;
+        line-height: inherit;
+        white-space: normal;
+      }
     }
 
     &#story:not(.show) {

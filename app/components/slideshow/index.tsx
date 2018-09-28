@@ -1,5 +1,5 @@
 import { size } from '@/theme'
-import { compose, withHandlers, withPropsOnChange, withState } from 'recompose'
+import { compose, lifecycle, withHandlers, withPropsOnChange, withState } from 'recompose'
 import styled from 'styled-components'
 
 interface TOutter {
@@ -108,6 +108,12 @@ export default compose<TOutter & THandles & TState, TOutter>(
     }
 
     return props
+  }),
+  lifecycle({
+    componentWillUnmount() {
+      document.querySelector('header').classList.remove('invert')
+      document.getElementById('story').classList.remove('show')
+    }
   })
 )(({ slide, prev, next, exit, data, ...props }) => (
   <Slideshow {...props}>

@@ -66,7 +66,7 @@ const Card = styled.figure`
     &:after {
       mix-blend-mode: screen;
       transition: .3s ${timingFunctions('easeInOutSine')};
-      background: #efaec4;
+      background: ${({ theme }) => theme.colours.ltBrand};
     }
 
     &:not(.out) {

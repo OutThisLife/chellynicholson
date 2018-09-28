@@ -31,9 +31,9 @@ export default class extends Document {
             color: ${colourVars.base};
             font-weight: 500;
             font-family: ${fontVars.family.copy}, Helvetica Neue, Arial, Helvetica, sans-serif;
-            font-size: ${fontVars.size};
+            font-size: ${fontVars.copy};
             line-height: 1.75;
-            letter-spacing: 0.18em;
+            letter-spacing: 0.03em;
           }
 
           @media (max-width: 2000px) {
@@ -42,13 +42,6 @@ export default class extends Document {
 
           body {
             overflow-y: scroll;
-          }
-
-          h1,h2,h3,h4,h5,h6 {
-            font-weight: inherit;
-            font-size: 1rem;
-            font-family: ${fontVars.family.title}, Georgia, serif;
-            line-height: 1;
           }
 
           ::selection {
@@ -63,6 +56,27 @@ export default class extends Document {
           *:focus,
           *:active {
             outline: none;
+          }
+
+          h1,h2,h3,h4,h5,h6 {
+            font-weight: inherit;
+            font-size: 1rem;
+            font-family: ${fontVars.family.title}, Georgia, serif;
+            line-height: 1;
+          }
+
+          h1 {
+            font-size: ${fontVars.h1};
+          }
+
+          h2 {
+            font-size: ${fontVars.h2};
+            line-height: 1.5;
+          }
+
+          p, q, blockquote {
+            font-size: ${fontVars.copy};
+            quotes: "\\201C" "\\201D" "\\2018" "\\2019";
           }
 
           a {

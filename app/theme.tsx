@@ -4,12 +4,14 @@ import styled, { keyframes } from 'styled-components'
 export const colours = {
   base: '#000',
   brand: '#E92DB8',
+  ltBrand: '#efaec4',
   bg: '#fff'
 }
 
 export const fonts = {
-  size: between('9px', '12px', '320px', '2000px'),
-  longform: between('12px', '16px'),
+  copy: between('9px', '12px'),
+  h1: between('42px', '98px'),
+  h2: between('24px', '36px'),
 
   family: {
     title: 'Elsie',

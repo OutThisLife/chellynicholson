@@ -9,7 +9,7 @@ export default () => (
       {[...Array(10).keys()].map(i => (
         <article key={Math.random()}>
           <figure style={{ backgroundImage: `url(//picsum.photos/700/${700 * i}/?random)` }}>
-              <img src={`//picsum.photos/200/200/?random`} />
+            <img src={`//picsum.photos/200/200/?random`} />
           </figure>
 
           <aside>
@@ -45,7 +45,12 @@ export const Blog = styled.div`
       bottom: 10vh;
       left: 40vw;
       margin: 0;
-      background: url(//picsum.photos/1920/1080/?random) center / cover no-repeat;
+      background: ${({ theme }) => theme.colours.ltBrand} url(//picsum.photos/1920/1080/?random) center / cover no-repeat;
+      background-blend-mode: screen;
+
+      @media (max-width: 768px) {
+        bottom: 0;
+      }
 
       &:before, &:after {
         content: '';
@@ -79,9 +84,12 @@ export const Blog = styled.div`
       position: relative;
       width: 40vw;
 
+      @media (max-width: 768px) {
+        width: 80vw;
+      }
+
       h2 {
-        font-size: 2.5rem;
-        margin: 0 0 0.5em;
+        margin: 0;
       }
 
       p {
