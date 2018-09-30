@@ -1,4 +1,3 @@
-import faker from 'faker'
 import { timingFunctions } from 'polished'
 import styled from 'styled-components'
 
@@ -6,17 +5,18 @@ import Caption from './caption'
 
 interface TOutter {
   key?: any
+  name: string
   img: string
   onMouse: (e?: React.MouseEvent<HTMLDivElement>) => void
 }
 
-export default ({ onMouse, ...props }: TOutter) => (
+export default ({ onMouse, name, ...props }: TOutter) => (
   <Card {...props}>
     <div className="card-bg" onMouseDown={onMouse} onMouseEnter={onMouse} onMouseLeave={onMouse}>
       <img alt="" src={props.img} />
     </div>
 
-    <Caption name={faker.name.findName()} />
+    <Caption name={name} />
   </Card>
 )
 

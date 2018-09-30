@@ -12,7 +12,7 @@
     "build:app": "next build ./app",
     "build:server": "tsc -p ./tsconfig.server.json",
     "build": "npm run build:app && npm run build:server",
-    "postinstall": "npm run build",
+    "postinstall-prod": "npm run build",
     "postinstall-dev": "types-installer",
     "fix": "tslint app/**/*.tsx --fix"
   },
@@ -39,6 +39,7 @@
     "compression": "^1.7.3",
     "css-loader": "^1.0.0",
     "dotenv": "^6.0.0",
+    "dropbox": "^4.0.9",
     "express": "^4.16.3",
     "fetch-headers": "^2.0.0",
     "graphql": "^0.13.2",

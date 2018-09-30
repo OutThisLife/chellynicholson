@@ -1,6 +1,6 @@
-import Gallery, { Card } from '@/components/gallery'
 import Quote from '@/components/quote'
 import Slideshow from '@/components/slideshow'
+import Images from '@/pages/home/images'
 import { Grid } from '@/theme'
 import { compose, withHandlers, withState } from 'recompose'
 
@@ -88,7 +88,7 @@ export default compose<TInner & THandlers & TState, TInner>(
       data={
         animTarget
           ? {
-              slides: ['//picsum.photos/1920/1050/?random', '//picsum.photos/1600/1050/?random'],
+              slides: ['//picsum.photos/1920/1050/?random', '//picsum.photos/1600/1050/?random', '//picsum.photos/1440/1050/?random', '//picsum.photos/1800/1050/?random'],
               title: 'My wife is beautiful!',
               copy: `<p>
                   Lorem ipsum dolor sit amet consectetur, adipisicing elit. Ratione, nemo vitae. Alias, rem illo?
@@ -115,18 +115,8 @@ export default compose<TInner & THandlers & TState, TInner>(
       }
     />
 
-    <Gallery variant="fancy">
-      {[...Array(5).keys()].map(i => (
-        <Card key={`card-${i}`} img={`//picsum.photos/1200/${!(i % 2) ? 800 : 800}/?random`} onMouse={onMouse} />
-      ))}
-    </Gallery>
-
+    <Images folder="/Featured" variant="fancy" onMouse={onMouse} />
     <Quote />
-
-    <Gallery>
-      {[...Array(9).keys()].map(i => (
-        <Card key={`card-${i}`} img={`//picsum.photos/1200/${!(i % 2) ? 800 : 800}/?random`} onMouse={onMouse} />
-      ))}
-    </Gallery>
+    <Images folder="/Portfolio" onMouse={onMouse} />
   </Grid>
 ))

@@ -1,6 +1,6 @@
 import styled from 'styled-components'
 
-export default ({ name }: { name: string }) => (
+export default ({ name = '' }: { name: string }) => (
   <Caption>
     <h1 dangerouslySetInnerHTML={{ __html: name.replace(/\s+/g, '<br />') }} />
   </Caption>

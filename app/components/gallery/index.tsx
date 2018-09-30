@@ -1,7 +1,7 @@
 import { size } from '@/theme'
 import styled, { css } from 'styled-components'
 
-export { default as Card } from '@/components/card'
+export { default as Card } from './card'
 
 interface TInner {
   children?: React.ReactNode
@@ -16,6 +16,10 @@ const Gallery = styled.section`
   grid-gap: ${size(1)};
   position: relative;
   width: 100%;
+
+  figure img {
+    display: none;
+  }
 
   @media (min-width: 768px) {
     figure div:hover,
@@ -37,6 +41,17 @@ const Gallery = styled.section`
       variant === 'normal'
         ? css`
             grid-template-columns: repeat(3, 1fr);
+
+            figure {
+              img {
+                display: none;
+              }
+
+              .card-bg {
+                height: 0px;
+                padding-top: 109.2%;
+              }
+            }
 
             figure:nth-child(3n + 1) div {
               transform-origin: left center;

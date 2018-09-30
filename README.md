@@ -1,5 +1,4 @@
-```
-1. git clone git@github.com:OutThisLife/nextjs-starter.git
-2. cd {repo-name}
-3. yarn && yarn dev
-```
+https://dribbble.com/shots/5311390-Quick-add-in-Loan-CRM/attachments
+https://dribbble.com/shots/5266878-Reporting-Applications/attachments
+https://dribbble.com/shots/5100514-Table-UI/attachments
+https://uxdesign.cc/design-better-data-tables-4ecc99d23356

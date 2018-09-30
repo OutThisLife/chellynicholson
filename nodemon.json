@@ -1,6 +1,6 @@
 {
   "watch": ["server/**/*.ts"],
   "execMap": {
-    "ts": "ts-node -P nodemon.tsconfig.json"
+    "ts": "ts-node -P nodemon.tsconfig.json -T"
   }
 }

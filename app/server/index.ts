@@ -8,6 +8,8 @@ import * as path from 'path'
 
 import { cache, resolvers, typeDefs } from './schema'
 
+require('isomorphic-unfetch')
+
 const dev = process.env.NODE_ENV !== 'production'
 
 if (!dev && process.env.NEW_RELIC_HOME) {

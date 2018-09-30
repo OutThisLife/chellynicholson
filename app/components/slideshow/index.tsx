@@ -242,6 +242,7 @@ const Slideshow = styled.div`
 
   nav {
     z-index: 2;
+    user-select: none;
     position: absolute;
     top: 0;
     right: 0;
@@ -263,7 +264,7 @@ const Slideshow = styled.div`
       &:first-child {
         cursor: url(/static/img/icon-left.svg), auto;
         left: 0;
-        background: linear-gradient(to right, rgba(0,0,0,0.7), transparent);
+        background: linear-gradient(to right, rgba(0,0,0,0.5), transparent);
       }
 
       &:nth-child(2) {
@@ -275,7 +276,7 @@ const Slideshow = styled.div`
       &:last-child {
         cursor: url(/static/img/icon-right.svg), auto;
         right: 0;
-        background: linear-gradient(to left, rgba(0,0,0,0.7), transparent);
+        background: linear-gradient(to left, rgba(0,0,0,0.5), transparent);
       }
     }
   }
