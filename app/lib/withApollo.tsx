@@ -1,15 +1,13 @@
 import { ApolloClient } from 'apollo-boost'
-import { DocumentNode } from 'graphql'
-import { withRouter } from 'next/router'
 import { Component } from 'react'
-import { DataProps, getDataFromTree, graphql, MutateProps, OperationOption } from 'react-apollo'
-import { branch, compose, lifecycle, renderComponent, setStatic } from 'recompose'
+import { getDataFromTree } from 'react-apollo'
 
 import initApollo from './initApollo'
 
 const dev = process.env.NODE_ENV !== 'production'
 
-export default App => class extends Component {
+export default App =>
+  class extends Component {
     public static displayName = 'withApollo(App)'
 
     public static async getInitialProps(ctx) {
@@ -21,9 +19,7 @@ export default App => class extends Component {
           appProps = await App.getInitialProps(ctx)
         }
 
-        await getDataFromTree(
-          <App {...appProps} apolloClient={apollo} {...ctx} />
-        )
+        await getDataFromTree(<App {...appProps} apolloClient={apollo} {...ctx} />)
       } catch (err) {
         if (dev) {
           console.error(err)
@@ -49,41 +45,4 @@ export default App => class extends Component {
     public render() {
       return <App {...this.props} apolloClient={this.apolloClient} />
     }
-}
-
-// --------------------------------------
-
-export const withLoader = <
-TProps extends TGraphQLVariables | {} = {},
-TData = {},
-TGraphQLVariables = {},
-TChildProps = Partial<DataProps<TData, TGraphQLVariables>> & Partial<MutateProps<TData, TGraphQLVariables>>
->(
-  query: DocumentNode,
-  operationOptions: OperationOption<TProps, TData, TGraphQLVariables, TChildProps> = {}
-) => {
-  let skip = (props: { data?: { loading?: boolean } } = {}) => typeof window !== 'undefined' && !/preview_id/.test(window.location.search) && props.data && props.data.loading
-  const blockRender = branch(skip, renderComponent(() => <div />))
-  const withQuery = () => graphql<TProps, TData, TGraphQLVariables, TChildProps>(query, Object.assign({}, operationOptions, { skip }))
-
-  return compose(
-    withRouter,
-    setStatic('prefetchData', async () => {
-      try {
-        await withQuery()(() => null)
-      } catch (err) {
-        if (dev) {
-          console.error(err)
-        }
-      }
-    }),
-    lifecycle({
-      componentWillUnmount() {
-        skip = () => true
-      }
-    }),
-    blockRender,
-    withQuery(),
-    blockRender
-  )
-}
+  }

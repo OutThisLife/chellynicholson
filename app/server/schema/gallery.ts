@@ -1,74 +1,89 @@
-import { cache, dbx } from '.'
+import { cache, dbx, Gallery, GalleryFile } from '.'
 
-interface Entry extends DropboxTypes.files.FileMetadata {
-  files?: DropboxTypes.files.GetTemporaryLinkResult[]
-}
-
-export const getFiles = async (path: string, key: string = path): Promise<Entry[]> => {
+export default async (_, { path }): Promise<Gallery[] | Gallery> => {
   try {
-    if (!cache.has(key)) {
-      const { entries } = await dbx.filesListFolder({
-        path
-      })
+    const pieces = path
+      .toLowerCase()
+      .replace('/apps/chelly blog/', '')
+      .split('/')
 
-      cache.set(key, entries)
+    const key = `/Apps/Chelly Blog/${pieces[0]}`
+    const isSingle = pieces.length > 1
+
+    if (!cache.has(key)) {
+      const r = []
+
+      for (const e of await getList(key)) {
+        const isMatch = e.path_lower.endsWith(path.toLowerCase())
+
+        if (isSingle && !isMatch) {
+          continue
+        }
+
+        r.push({
+          id: e.id,
+          name: e.name,
+          path: e.path_lower,
+          files: []
+        })
+
+        if (isSingle && isMatch) {
+          break
+        }
+      }
+
+      cache.set(key, r)
     }
 
-    return cache.get(key) as Entry[]
+    const res = cache.get(key) as Gallery[]
+
+    if (isSingle) {
+      return res[0]
+    }
+
+    return res
   } catch (err) {
     console.error(err)
-    throw err
+    return []
   }
 }
 
-export default async (_, { path }): Promise<Entry[]> => {
+export const getList = async <T extends DropboxTypes.files.FileMetadataReference>(path: string): Promise<T[]> => {
   try {
-    const entries = await getFiles(`/Apps/Chelly Blog${path}`)
+    const { entries } = await dbx.filesListFolder({
+      path
+    })
 
-    if (!cache.has(path)) {
-      const data = entries.reduce(async (acc, id, i) => {
-        const cur = await acc
-        cur[i].files = []
-
-        try {
-          const nestedEntries = await getFiles(id.path_lower, id.id)
-
-          for (let n = 0, l = nestedEntries.length; n < l; n++) {
-            try {
-              const f = nestedEntries[n]
-
-              if (!cache.has(f.id)) {
-                cache.set(
-                  f.id,
-                  await dbx.filesGetTemporaryLink({
-                    path: f.path_lower
-                  })
-                )
-              }
-
-              cur[i].files.push(cache.get(f.id) as DropboxTypes.files.GetTemporaryLinkResult)
-            } catch (e) {
-              console.error(e)
-              throw e
-            }
-          }
-        } catch (e) {
-          console.error(e)
-          throw e
-        }
-
-        return cur
-      }, Promise.resolve(entries))
-
-      cache.set(path, {
-        id: path,
-        data
-      })
-    }
-
-    return cache.get(path) as Entry[]
+    return entries as T[]
   } catch (err) {
     console.error(err)
-    throw err
+    return []
+  }
+}
+
+export const galleryFiles = async (path: string): Promise<GalleryFile[]> => {
+  const key = `f-${path}`
+
+  try {
+    if (!cache.has(key)) {
+      const r = []
+
+      for (const f of await getList(path)) {
+        r.push({
+          id: f.id,
+          name: f.name,
+          path: f.path_lower,
+          size: f.size,
+          url: ''
+        })
+      }
+
+      cache.set(key, r)
+    }
+
+    return cache.get(key) as GalleryFile[]
+  } catch (err) {
+    console.error(err)
+    return []
   }
 }

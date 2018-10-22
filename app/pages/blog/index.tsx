@@ -1,33 +1,45 @@
+import { Post } from '@/server/schema'
 import { Grid, size } from '@/theme'
-import faker from 'faker'
+import gql from 'graphql-tag'
 import Link from 'next/link'
+import { graphql } from 'react-apollo'
 import styled from 'styled-components'
 
-export default () => (
+export default graphql<{}, { posts: Post[] }>(gql`
+  query GetBlog {
+    blog {
+      id
+      body
+    }
+  }
+`)(({ data: { loading, posts = [] } }) => (
   <Grid center={true}>
-    <Blog>
-      {[...Array(10).keys()].map(i => (
-        <article key={Math.random()}>
-          <figure style={{ backgroundImage: `url(//picsum.photos/700/${700 * i}/?random)` }}>
-            <img src={`//picsum.photos/200/200/?random`} />
-          </figure>
+    {!loading && (
+      <Blog>
+        {posts.map(({ id, title, body }) => (
+          <article key={`post-${id}`}>
+            <figure style={{ backgroundImage: `url(//picsum.photos/700/${700 * i}/?random)` }}>
+              <img src={`//picsum.photos/200/200/?random`} />
+            </figure>
 
-          <aside>
-            <Link href="/blog/test-post">
-              <a>
-                <h2>
-                  {faker.lorem.sentence()}
-                </h2>
-              </a>
-            </Link>
+            <aside>
+              <Link href="/blog/test-post">
+                <a>
+                  <h2 dangerouslySetInnerHTML={{ __html: title }} />
+                </a>
+              </Link>
 
-            <p>{faker.lorem.words()}</p>
-          </aside>
-        </article>
-      ))}
-    </Blog>
+              <p>
+                {body.substr(0, 36)}
+                &hellip;
+              </p>
+            </aside>
+          </article>
+        ))}
+      </Blog>
+    )}
   </Grid>
-)
+))
 
 export const Blog = styled.div`
   position: relative;
@@ -45,14 +57,16 @@ export const Blog = styled.div`
       bottom: 10vh;
       left: 40vw;
       margin: 0;
-      background: ${({ theme }) => theme.colours.ltBrand} url(//picsum.photos/1920/1080/?random) center / cover no-repeat;
+      background: ${({ theme }) => theme.colours.ltBrand} url(//picsum.photos/1920/1080/?random) center / cover
+        no-repeat;
       background-blend-mode: screen;
 
       @media (max-width: 768px) {
         bottom: 0;
       }
 
-      &:before, &:after {
+      &:before,
+      &:after {
         content: '';
         position: absolute;
         top: 0;
@@ -62,12 +76,12 @@ export const Blog = styled.div`
 
       &:before {
         left: 0;
-        background: linear-gradient(to right, rgba(0,0,0,0.2), transparent);
+        background: linear-gradient(to right, rgba(0, 0, 0, 0.2), transparent);
       }
 
       &:after {
         right: 0;
-        background: linear-gradient(to left, rgba(0,0,0,0.2), transparent);
+        background: linear-gradient(to left, rgba(0, 0, 0, 0.2), transparent);
       }
 
       img {

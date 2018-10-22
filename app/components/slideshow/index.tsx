@@ -1,15 +1,24 @@
+import { getSlides } from '@/lib/queries'
+import { Gallery } from '@/server/schema'
 import { size } from '@/theme'
-import { compose, lifecycle, withHandlers, withPropsOnChange, withState } from 'recompose'
+import { DataValue } from 'react-apollo'
+import {
+  compose,
+  lifecycle,
+  withHandlers,
+  withPropsOnChange,
+  withState
+} from 'recompose'
 import styled from 'styled-components'
 
 interface TOutter {
   id: string
+  path: string
   reset: () => void
-  data: {
-    title?: string
-    copy?: string
-    slides: string[]
-  }
+}
+
+interface TInner {
+  data: DataValue<{ slideshow: Gallery }>
 }
 
 interface TState {
@@ -26,7 +35,8 @@ interface THandles {
   exit?: React.MouseEventHandler<any>
 }
 
-export default compose<TOutter & THandles & TState, TOutter>(
+export default compose<TInner & TOutter & THandles & TState, TOutter>(
+  getSlides(),
   withState('slide', 'setSlide', 0),
   withHandlers<TState & TOutter, THandles>(() => ({
     goToSlide: ({ setSlide, slide }) => nextSlide =>
@@ -51,6 +61,7 @@ export default compose<TOutter & THandles & TState, TOutter>(
           })
         })
       }),
+
     toggle: ({ reset }) => (isOpen = false) =>
       window.requestAnimationFrame(() => {
         const $single = document.getElementById('single')
@@ -93,17 +104,17 @@ export default compose<TOutter & THandles & TState, TOutter>(
         })
       })
   })),
-  withHandlers<TState & TOutter & THandles, THandles>(() => ({
+  withHandlers<TInner & TState & TOutter & THandles, THandles>(() => ({
     prev: ({ slide, goToSlide }) => () => goToSlide(Math.max(0, slide - 1)),
-    next: ({ slide, goToSlide, data }) => () => goToSlide(Math.min(data.slides.length - 1, slide + 1)),
+    next: ({ slide, goToSlide, data }) => () => goToSlide(Math.min(data.slideshow.files.length - 1, slide + 1)),
     exit: ({ setSlide, toggle }) => ({ button }) => !button && setSlide(0, () => toggle(false))
   })),
-  withPropsOnChange<TOutter, TOutter & THandles>(['data', 'slide'], props => {
+  withPropsOnChange<TOutter, TInner & TOutter & THandles>(['data', 'slide'], props => {
     if (typeof window === 'undefined') {
       return props
     }
 
-    if (props.data.slides.length) {
+    if (props.data.slideshow.files.length) {
       props.toggle(true)
     }
 
@@ -115,7 +126,7 @@ export default compose<TOutter & THandles & TState, TOutter>(
       document.getElementById('story').classList.remove('show')
     }
   })
-)(({ slide, prev, next, exit, data, ...props }) => (
+)(({ data: { slideshow }, slide, prev, next, exit, data, ...props }) => (
   <Slideshow {...props}>
     <nav>
       <a href="javascript:;" disabled={slide === 0} onClick={prev}>
@@ -131,15 +142,15 @@ export default compose<TOutter & THandles & TState, TOutter>(
       </a>
     </nav>
 
-    {data.slides.map((src, i) => (
-      <figure key={src} className={i === slide ? 'active' : ''} style={{ backgroundImage: `url(${src})` }} />
+    {slideshow.files.map(({ id, url }, i) => (
+      <figure key={id} className={i === slide ? 'active' : ''} style={{ backgroundImage: `url(${url})` }} />
     ))}
 
-    {'title' in data && (
+    {'name' in slideshow && (
       <figcaption>
         <div>
-          <h2>{data.title}</h2>
-          <div dangerouslySetInnerHTML={{ __html: data.copy }} />
+          <h2>{slideshow.name}</h2>
+          <div dangerouslySetInnerHTML={{ __html: slideshow.path }} />
         </div>
       </figcaption>
     )}
@@ -264,7 +275,7 @@ const Slideshow = styled.div`
       &:first-child {
         cursor: url(/static/img/icon-left.svg), auto;
         left: 0;
-        background: linear-gradient(to right, rgba(0,0,0,0.5), transparent);
+        background: linear-gradient(to right, rgba(0, 0, 0, 0.5), transparent);
       }
 
       &:nth-child(2) {
@@ -276,7 +287,7 @@ const Slideshow = styled.div`
       &:last-child {
         cursor: url(/static/img/icon-right.svg), auto;
         right: 0;
-        background: linear-gradient(to left, rgba(0,0,0,0.5), transparent);
+        background: linear-gradient(to left, rgba(0, 0, 0, 0.5), transparent);
       }
     }
   }

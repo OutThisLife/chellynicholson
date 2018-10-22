@@ -1,5 +1,4 @@
 import Quote from '@/components/quote'
-import Slideshow from '@/components/slideshow'
 import Images from '@/pages/home/images'
 import { Grid } from '@/theme'
 import { compose, withHandlers, withState } from 'recompose'
@@ -37,6 +36,7 @@ export default compose<TInner & THandlers & TState, TInner>(
       currentTarget.style.setProperty('--mouseX', `${x}px`)
       currentTarget.style.setProperty('--mouseY', `${y}px`)
     },
+
     onMouse: ({ setAnimTarget, animTarget }) => ({ button, type, currentTarget }) => {
       if (animTarget) {
         return
@@ -68,6 +68,7 @@ export default compose<TInner & THandlers & TState, TInner>(
         $single.style.setProperty('--clip', `inset(${t}px ${r}px ${b}px ${l}px)`)
       }, 150)
     },
+
     onReset: ({ setAnimTarget, animTarget }) => () => {
       setAnimTarget(undefined, () => {
         const $items = document.getElementsByClassName('card-bg')
@@ -82,41 +83,10 @@ export default compose<TInner & THandlers & TState, TInner>(
   }))
 )(({ animTarget, onMove, onMouse, onReset }) => (
   <Grid onMouseMove={onMove}>
-    <Slideshow
-      id="single"
-      reset={onReset}
-      data={
-        animTarget
-          ? {
-              slides: ['//picsum.photos/1920/1050/?random', '//picsum.photos/1600/1050/?random', '//picsum.photos/1440/1050/?random', '//picsum.photos/1800/1050/?random'],
-              title: 'My wife is beautiful!',
-              copy: `<p>
-                  Lorem ipsum dolor sit amet consectetur, adipisicing elit. Ratione, nemo vitae. Alias, rem illo?
-                  Explicabo doloremque voluptatem ab mollitia impedit molestias tempore velit ea rerum? Ratione
-                  doloribus nam quod eaque?
-                </p>
-                <p>
-                  Lorem ipsum dolor sit amet consectetur, adipisicing elit. Ratione, nemo vitae. Alias, rem illo?
-                  Explicabo doloremque voluptatem ab mollitia impedit molestias tempore velit ea rerum? Ratione
-                  doloribus nam quod eaque?
-                </p>
-                <p>
-                  Lorem ipsum dolor sit amet consectetur, adipisicing elit. Ratione, nemo vitae. Alias, rem illo?
-                  Explicabo doloremque voluptatem ab mollitia impedit molestias tempore velit ea rerum? Ratione
-                  doloribus nam quod eaque?
-                </p>
-                <p>
-                  Lorem ipsum dolor sit amet consectetur, adipisicing elit. Ratione, nemo vitae. Alias, rem illo?
-                  Explicabo doloremque voluptatem ab mollitia impedit molestias tempore velit ea rerum? Ratione
-                  doloribus nam quod eaque?
-                </p>`
-            }
-          : { slides: [] }
-      }
-    />
+    {/* <Slideshow id="single" reset={onReset} path={animTarget ? animTarget.dataset.path : undefined} /> */}
 
-    <Images folder="/Featured" variant="fancy" onMouse={onMouse} />
+    <Images path="Featured" variant="fancy" onMouse={onMouse} />
     <Quote />
-    <Images folder="/Portfolio" onMouse={onMouse} />
+    <Images path="Portfolio" onMouse={onMouse} />
   </Grid>
 ))

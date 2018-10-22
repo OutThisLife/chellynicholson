@@ -1,51 +1,32 @@
-import Gallery, { Card } from '@/components/gallery'
+import ImageGallery, { Card } from '@/components/gallery'
+import { getGallery } from '@/lib/queries'
+import { Gallery } from '@/server/schema'
 import { random } from 'animejs'
-import gql from 'graphql-tag'
-import { graphql } from 'react-apollo'
+import { DataValue } from 'react-apollo'
 import { compose } from 'recompose'
 
 interface TOutter {
-  folder: string
+  path: string
   variant?: 'normal' | 'fancy'
   onMouse: React.MouseEventHandler<any>
 }
 
 interface TInner {
-  data: Response
+  data: DataValue<{ gallery: Gallery[] }>
 }
 
-interface Response {
-  gallery: {
-    data: Array<
-      DropboxTypes.files.FileMetadata & {
-        files: DropboxTypes.files.GetTemporaryLinkResult[]
-      }
-    >
-  }
-}
-
-export default compose<TInner & TOutter, TOutter>(
-  graphql<TOutter, Response>(
-    gql`
-      query featuredPosts($path: String!) {
-        gallery(path: $path) {
-          data
-        }
-      }
-    `,
-    {
-      options: ({ folder }) => ({
-        variables: { path: folder }
-      })
-    }
+export default compose<TInner & TOutter, TOutter>(getGallery())(
+  ({ variant = 'normal', data: { gallery = [] }, ...props }) => (
+    <ImageGallery variant={variant}>
+      {gallery.map(({ id, files, ...set }) => (
+        <Card
+          key={id}
+          data-path={set.path}
+          img={files.length ? files[random(0, files.length - 1)].url : ''}
+          {...set}
+          {...props}
+        />
+      ))}
+    </ImageGallery>
   )
-)(
-  ({ variant = 'normal', data, ...props }) =>
-    data.gallery && (
-      <Gallery variant={variant}>
-        {data.gallery.data.map(({ id, name, files }) => (
-          <Card key={id} name={name} img={files[random(0, files.length - 1)].link} {...props} />
-        ))}
-      </Gallery>
-    )
 )
