@@ -77,7 +77,7 @@ nextApp.prepare().then(() => {
 
     .use((req, res, resolve) => {
       ;(nextApp.nextConfig.publicRuntimeConfig as any).API_URL = `${
-        req.protocol
+        isDev ? 'http' : 'https'
       }://${req.headers.host}/graphql`
 
       let staticUrl

@@ -62,7 +62,6 @@ export default compose<TInner & THandlers & TState, TInner>(
       type,
       currentTarget
     }) => {
-      console.log(button, type)
       if ('images' in animTarget) {
         return
       }
