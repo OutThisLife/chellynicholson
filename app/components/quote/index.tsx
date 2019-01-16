@@ -1,10 +1,10 @@
 import { size } from '@/theme'
 import styled from 'styled-components'
 
-export default () => (
+export default ({ copy, cite }: { copy: string; cite: string }) => (
   <Quote>
-    <q>Though we travel the world over to find the beautiful, we must carry it with us or we find it not.</q>
-    <cite>&mdash;Ralph Waldo Emerson</cite>
+    <q dangerouslySetInnerHTML={{ __html: copy }} />
+    <cite>&mdash; {cite}</cite>
   </Quote>
 )
 
@@ -21,7 +21,8 @@ const Quote = styled.blockquote`
     grid-column: 3 / -3;
   }
 
-  q, cite {
+  q,
+  cite {
     display: block;
   }
 

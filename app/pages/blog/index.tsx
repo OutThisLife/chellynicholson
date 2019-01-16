@@ -1,4 +1,4 @@
-import Meta from '@/lib/Meta'
+import Meta from '@/components/meta'
 import { Post } from '@/server/schema'
 import { Grid, size } from '@/theme'
 import gql from 'graphql-tag'

@@ -1,64 +1,62 @@
 import { size } from '@/theme'
 import Link from 'next/link'
 import { rgba } from 'polished'
-import { withHandlers } from 'recompose'
+import { compose, setDisplayName, withHandlers } from 'recompose'
 import styled from 'styled-components'
 
 interface THandles {
   openStory: React.MouseEventHandler<HTMLAnchorElement>
 }
 
-export default withHandlers<{}, THandles>(() => ({
-  openStory: () => ({ currentTarget }) => {
-    const $single = document.getElementById('single')
-    const $story = $single.querySelector('figcaption')
+export default compose<THandles, {}>(
+  setDisplayName('header'),
+  withHandlers<{}, THandles>(() => ({
+    openStory: () => ({ currentTarget }) => {
+      const $single = document.getElementById('single')
+      const $story = $single.querySelector('figcaption')
 
-    if ($story) {
-      currentTarget.classList.toggle('invert')
-      $story.classList.toggle('open')
+      if ($story) {
+        currentTarget.classList.toggle('invert')
+        $story.classList.toggle('open')
 
-      if ($story.classList.contains('open')) {
-        currentTarget.textContent = 'close'
-      } else {
-        currentTarget.textContent = 'story'
+        if ($story.classList.contains('open')) {
+          currentTarget.textContent = 'close'
+        } else {
+          currentTarget.textContent = 'story'
+        }
       }
     }
-  }
-}))(({ openStory }) => (
+  }))
+)(({ openStory }) => (
   <Header>
-    <div>
+    <Link href="/">
+      <a id="logo">chelly &Delta; nicholson</a>
+    </Link>
+
+    <nav>
       <Link href="/">
-        <a id="logo">chelly &Delta; nicholson</a>
+        <a>portfolio</a>
       </Link>
 
-      <nav>
-        <Link href="/">
-          <a>portfolio</a>
-        </Link>
+      <Link prefetch href="/about">
+        <a>about</a>
+      </Link>
 
-        <Link prefetch href="/about">
-          <a>about</a>
-        </Link>
+      <Link prefetch href="/blog">
+        <a>blog</a>
+      </Link>
 
-        <Link prefetch href="/blog">
-          <a>blog</a>
-        </Link>
+      <a href="//instagram.com/chellynicholson" target="_blank" rel="noopener">
+        [ig]
+      </a>
 
-        <a
-          href="//instagram.com/chellynicholson"
-          target="_blank"
-          rel="noopener">
-          [ig]
-        </a>
-
-        <a
-          href="//facebook.com/chellynicholsonphotography"
-          target="_blank"
-          rel="noopener">
-          [fb]
-        </a>
-      </nav>
-    </div>
+      <a
+        href="//facebook.com/chellynicholsonphotography"
+        target="_blank"
+        rel="noopener">
+        [fb]
+      </a>
+    </nav>
 
     <a href="javascript:;" id="story" onClick={openStory}>
       story

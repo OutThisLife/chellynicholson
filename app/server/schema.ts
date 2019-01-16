@@ -51,6 +51,7 @@ export const typeDefs = gql`
     id: ID!
     body: JSON
     category: Category
+    featured: Boolean
     images: [Image]
     slug: String
     title: String
@@ -72,6 +73,7 @@ export interface Post {
   slug?: string
   body?: any
   createdAt?: string
+  featured?: boolean
   img?: {
     url: string
   }

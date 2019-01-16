@@ -1,3 +1,4 @@
+import Meta from '@/components/meta'
 import Quote from '@/components/quote'
 import Slideshow from '@/components/slideshow'
 import Images from '@/pages/home/images'
@@ -5,17 +6,18 @@ import { Post } from '@/server/schema'
 import { Grid } from '@/theme'
 import { ApolloClient } from 'apollo-boost'
 import gql from 'graphql-tag'
-import Head from 'next/head'
 import { withApollo } from 'react-apollo'
 import { compose, setDisplayName, withHandlers, withState } from 'recompose'
 
 interface TInner {
   client: ApolloClient<{}>
-  animTarget?: Partial<Post>
+  animTarget?: Partial<Post> & {
+    el: HTMLElement
+  }
 }
 
 interface TState {
-  setAnimTarget: (a?: Partial<Post>, cb?: () => void) => void
+  setAnimTarget: (a?: TInner['animTarget'], cb?: () => void) => void
 }
 
 interface THandlers {
@@ -26,7 +28,7 @@ interface THandlers {
 
 export default compose<TInner & THandlers & TState, TInner>(
   setDisplayName('homepage'),
-  withState('animTarget', 'setAnimTarget', undefined),
+  withState('animTarget', 'setAnimTarget', {}),
   withApollo,
   withHandlers<TState & TInner, THandlers>(() => ({
     onMove: () => ({ clientX, clientY, target, currentTarget }) => {
@@ -54,8 +56,7 @@ export default compose<TInner & THandlers & TState, TInner>(
       type,
       currentTarget
     }) => {
-      console.log(currentTarget.closest('[id]'))
-      if (animTarget) {
+      if ('images' in animTarget) {
         return
       }
 
@@ -65,18 +66,26 @@ export default compose<TInner & THandlers & TState, TInner>(
         .filter(el => el !== currentTarget)
 
       if (!button && type === 'mousedown') {
-        const res = await client.query({
+        const { data } = await client.query({
           query: gql`
           {
-            res: q(q: "*[_id == '${currentTarget.dataset.id}'][0]")
+            q(q: "*[_id == '${
+              currentTarget.dataset.ref
+            }'][0] { ..., 'images': images[].asset->{url} }")
           }`
         })
 
-        // currentTarget.classList.add('open')
-        // return setAnimTarget(currentTarget)
+        if ('q' in data) {
+          currentTarget.classList.add('open')
+
+          return setAnimTarget({
+            ...data.q,
+            el: currentTarget
+          })
+        }
       }
 
-      for (let i = 0, len = $siblings.length; i < len; i++) {
+      for (let i = 0, l = $siblings.length; i < l; i++) {
         $siblings[i].classList[type === 'mouseenter' ? 'add' : 'remove']('out')
       }
 
@@ -104,31 +113,32 @@ export default compose<TInner & THandlers & TState, TInner>(
     },
 
     onReset: ({ setAnimTarget, animTarget }) => () => {
-      setAnimTarget(undefined, () => {
-        const $items = document.getElementsByClassName('card-bg')
+      const $items = document.getElementsByClassName('card-bg')
 
-        for (let i = 0, l = $items.length; i < l; i++) {
-          $items[i].classList.remove('out')
-        }
+      for (let i = 0, l = $items.length; i < l; i++) {
+        $items[i].classList.remove('out')
+      }
 
-        animTarget.classList.remove('open')
-      })
+      if (animTarget.el instanceof HTMLElement) {
+        animTarget.el.classList.remove('open')
+        setTimeout(() => setAnimTarget({ el: animTarget.el }), 700)
+      }
     }
   }))
 )(({ animTarget, onMove, onMouse, onReset }) => (
   <>
-    <Head>
-      <title key="title">Chelsea Nicholson Photography</title>
-    </Head>
+    <Meta title="(●´ω｀●)" />
 
     <Grid onMouseMove={onMove}>
-      {'browser' in process && (
-        <Slideshow id="single" reset={onReset} target={animTarget} />
-      )}
-
+      <Slideshow id="single" reset={onReset} target={animTarget} />
       <Images variant="fancy" onMouse={onMouse} />
-      <Quote />
-      {/* <Images path="Portfolio" onMouse={onMouse} /> */}
+
+      <Quote
+        copy="Though we travel the world over to find the beautiful, we must carry it with us or we find it not."
+        cite="Ralph Waldo Emerson"
+      />
+
+      <Images onMouse={onMouse} />
     </Grid>
   </>
 ))

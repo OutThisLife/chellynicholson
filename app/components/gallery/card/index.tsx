@@ -3,8 +3,6 @@ import { timingFunctions } from 'polished'
 import { compose, setDisplayName } from 'recompose'
 import styled from 'styled-components'
 
-import Caption from './caption'
-
 interface TOutter extends Post {
   key?: any
 }
@@ -14,11 +12,12 @@ interface TInner extends TOutter {
 }
 
 export default compose<TInner, TOutter>(setDisplayName('gallery-card'))(
-  ({ onMouse, title, images = [], ...props }) => (
+  ({ onMouse, id, title, images = [], ...props }) => (
     <Card {...props}>
       {images.length ? (
         <div
           className="card-bg"
+          data-ref={id}
           onMouseDown={onMouse}
           onMouseEnter={onMouse}
           onMouseLeave={onMouse}
@@ -29,7 +28,11 @@ export default compose<TInner, TOutter>(setDisplayName('gallery-card'))(
         </div>
       ) : null}
 
-      <Caption title={title} />
+      <Caption>
+        <h1
+          dangerouslySetInnerHTML={{ __html: title.replace(/\s+/g, '<br />') }}
+        />
+      </Caption>
     </Card>
   )
 )
@@ -93,3 +96,37 @@ const Card = styled.figure`
     }
   }
 ` as any
+
+const Caption = styled.figcaption`
+  z-index: 10;
+  user-select: none;
+  pointer-events: none;
+  display: flex;
+  align-items: center;
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+
+  h1 {
+    color: ${({ theme }) => theme.colours.base};
+    font-size: 10vmax;
+    font-weight: 500;
+    text-transform: uppercase;
+    margin: 0;
+    transform: translate3d(
+      calc(0% + var(--captionX, 0px)),
+      calc(0% + var(--mouseY, 0)),
+      0
+    );
+
+    @media (max-width: 768px) {
+      font-size: 8vmax;
+    }
+  }
+
+  .card-bg:not(:hover) ~ & {
+    visibility: hidden;
+  }
+`

@@ -1,8 +1,9 @@
 import ImageGallery, { Card } from '@/components/gallery'
 import { Post } from '@/server/schema'
 import gql from 'graphql-tag'
+import orderBy from 'lodash/orderBy'
 import { DataValue, graphql } from 'react-apollo'
-import { compose } from 'recompose'
+import { compose, defaultProps, setDisplayName } from 'recompose'
 
 interface TOutter {
   variant?: 'normal' | 'fancy'
@@ -14,10 +15,13 @@ interface TInner {
 }
 
 export default compose<TInner & TOutter, TOutter>(
+  setDisplayName('images'),
+  defaultProps({ variant: 'normal' }),
   graphql(gql`
     {
       gallery {
         id
+        featured
         images {
           url
         }
@@ -26,10 +30,13 @@ export default compose<TInner & TOutter, TOutter>(
       }
     }
   `)
-)(({ variant, data: { gallery = [] } }) => (
-  <ImageGallery variant={variant || 'normal'}>
-    {gallery.map(({ id, ...set }) => (
-      <Card key={id} {...set} />
+)(({ variant, data: { gallery = [] }, ...props }) => (
+  <ImageGallery variant={variant}>
+    {orderBy(
+      gallery.filter(g => (variant === 'fancy' ? g.featured : !g.featured)),
+      'order'
+    ).map(set => (
+      <Card key={set.id} {...set} {...props} />
     ))}
   </ImageGallery>
 ))

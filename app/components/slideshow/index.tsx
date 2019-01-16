@@ -1,8 +1,8 @@
 import { Post } from '@/server/schema'
 import { size } from '@/theme'
+import BlockContent from '@sanity/block-content-to-react'
 import {
   compose,
-  defaultProps,
   lifecycle,
   setDisplayName,
   withHandlers,
@@ -13,7 +13,9 @@ import styled from 'styled-components'
 
 interface TOutter {
   id: string
-  target?: Partial<Post>
+  target?: Partial<Post> & {
+    el: HTMLElement
+  }
   reset: () => void
 }
 
@@ -33,9 +35,6 @@ interface THandles {
 
 export default compose<TOutter & THandles & TState, TOutter>(
   setDisplayName('slideshow'),
-  defaultProps({
-    target: {}
-  }),
   withState('slide', 'setSlide', 0),
   withHandlers<TState & TOutter, THandles>(() => ({
     goToSlide: ({ setSlide, slide }) => nextSlide =>
@@ -61,7 +60,7 @@ export default compose<TOutter & THandles & TState, TOutter>(
         })
       }),
 
-    toggle: ({ reset }) => (isOpen = false) =>
+    toggle: ({ target, reset }) => (isOpen = false) =>
       window.requestAnimationFrame(() => {
         const $single = document.getElementById('single')
         const $header = document.querySelector('header')
@@ -70,7 +69,10 @@ export default compose<TOutter & THandles & TState, TOutter>(
         if (isOpen) {
           ;(window as any).lastY = window.scrollY
 
-          $story.textContent = 'story'
+          if ('body' in target) {
+            $story.textContent = 'story'
+          }
+
           $single.classList.add('in')
 
           window.requestAnimationFrame(() => {
@@ -86,32 +88,38 @@ export default compose<TOutter & THandles & TState, TOutter>(
           })
 
           return
+        } else if ($single instanceof HTMLElement) {
+          $single.classList.remove('in')
+
+          window.requestAnimationFrame(() => {
+            $header.classList.remove('invert')
+
+            if ($story) {
+              $story.className = ''
+            }
+
+            document.body.style.position = ''
+            document.body.style.top = ''
+            document.body.style.height = ''
+
+            setTimeout(() => window.scrollTo(0, (window as any).lastY), 25)
+            reset()
+          })
         }
-
-        $single.classList.remove('in')
-
-        window.requestAnimationFrame(() => {
-          $header.classList.remove('invert')
-          $story.className = ''
-
-          document.body.style.position = ''
-          document.body.style.top = ''
-          document.body.style.height = ''
-
-          setTimeout(() => window.scrollTo(0, (window as any).lastY), 25)
-          reset()
-        })
       })
   })),
   withHandlers<TState & TOutter & THandles, THandles>(() => ({
     prev: ({ slide, goToSlide }) => () => goToSlide(Math.max(0, slide - 1)),
+
     next: ({ slide, goToSlide, target }) => () =>
       goToSlide(Math.min(target.images.length - 1, slide + 1)),
+
     exit: ({ setSlide, toggle }) => ({ button }) =>
       !button && setSlide(0, () => toggle(false))
   })),
-  withPropsOnChange<TOutter, TOutter & THandles>(['data', 'slide'], props => {
-    if (typeof window === 'undefined') {
+  withPropsOnChange<TOutter, TOutter & THandles>(['target', 'slide'], props => {
+    console.log('[slideshow]', props)
+    if (!('browser' in process)) {
       return props
     }
 
@@ -134,41 +142,44 @@ export default compose<TOutter & THandles & TState, TOutter>(
 )(({ slide, prev, next, exit, target, ...props }) => (
   <Slideshow {...props}>
     {'images' in target && (
-      <nav>
-        <a href="javascript:;" disabled={slide === 0} onClick={prev}>
-          Prev
-        </a>
+      <>
+        <nav>
+          <a href="javascript:;" disabled={slide === 0} onClick={prev}>
+            Prev
+          </a>
 
-        <a href="javascript:;" onClick={exit}>
-          Exit
-        </a>
+          <a href="javascript:;" onClick={exit}>
+            Exit
+          </a>
 
-        <a
-          href="javascript:;"
-          disabled={slide === target.images.length - 1}
-          onClick={next}>
-          Next
-        </a>
-      </nav>
+          <a
+            href="javascript:;"
+            disabled={slide === target.images.length - 1}
+            onClick={next}>
+            Next
+          </a>
+        </nav>
+
+        {target.images.map((im, i) => (
+          <figure
+            key={im.url.substring(0, 15)}
+            className={i === slide ? 'active' : ''}
+            style={{ backgroundImage: `url(${im.url})` }}
+          />
+        ))}
+      </>
     )}
 
-    {'images' in target &&
-      target.images.map((im, i) => (
-        <figure
-          key={im.url.substring(0, 15)}
-          className={i === slide ? 'active' : ''}
-          style={{ backgroundImage: `url(${im.url})` }}
-        />
-      ))}
-
-    {/* {'name' in slideshow && (
+    {'title' in target && (
       <figcaption>
         <div>
-          <h2>{slideshow.name}</h2>
-          <div dangerouslySetInnerHTML={{ __html: slideshow.path }} />
+          <h2>{target.title}</h2>
+          <div>
+            <BlockContent blocks={target.body} />
+          </div>
         </div>
       </figcaption>
-    )} */}
+    )}
   </Slideshow>
 ))
 

@@ -32,14 +32,14 @@ const Gallery = styled.section`
 
       &:before {
         opacity: 1;
-        background-position: ${({ variant = 'normal' }: TInner) =>
+        background-position: ${({ variant }: TInner) =>
           variant === 'normal'
             ? css`calc(50% + (var(--mouseX, 1px) / 12)) center`
             : css`center calc(50% + (var(--mouseY, 1px) / 12));`};
       }
     }
 
-    ${({ variant = 'normal' }: TInner) =>
+    ${({ variant }: TInner) =>
       variant === 'normal'
         ? css`
             grid-template-columns: repeat(3, 1fr);

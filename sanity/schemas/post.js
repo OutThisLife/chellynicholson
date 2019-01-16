@@ -2,6 +2,7 @@ export default {
   name: 'post',
   title: 'Post',
   type: 'document',
+
   fields: [
     {
       name: 'title',
@@ -27,7 +28,7 @@ export default {
     },
     {
       name: 'body',
-      title: 'Description',
+      title: 'Copy',
       type: 'blockContent'
     }
   ],
@@ -35,7 +36,16 @@ export default {
   preview: {
     select: {
       title: 'title',
-      media: 'mainImage'
+      slug: 'slug',
+      media: 'images'
+    },
+
+    prepare(p) {
+      return {
+        title: p.title,
+        subtitle: p.slug.current,
+        media: p.media
+      }
     }
   }
 }
