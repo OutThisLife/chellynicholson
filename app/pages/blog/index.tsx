@@ -1,44 +1,57 @@
+import Meta from '@/lib/Meta'
 import { Post } from '@/server/schema'
 import { Grid, size } from '@/theme'
 import gql from 'graphql-tag'
 import Link from 'next/link'
-import { graphql } from 'react-apollo'
+import { DataProps, graphql } from 'react-apollo'
+import { compose, setDisplayName } from 'recompose'
 import styled from 'styled-components'
 
-export default graphql<{}, { posts: Post[] }>(gql`
-  query GetBlog {
-    blog {
-      id
-      body
+export default compose<DataProps<{ posts: Post[] }>, {}>(
+  setDisplayName('blog'),
+  graphql<{}, { posts: Post[] }>(gql`
+    query GetBlog {
+      posts {
+        id
+        body
+        slug
+        title
+        img {
+          url
+        }
+      }
     }
-  }
-`)(({ data: { loading, posts = [] } }) => (
-  <Grid center={true}>
-    {!loading && (
-      <Blog>
-        {posts.map(({ id, title, body }) => (
-          <article key={`post-${id}`}>
-            <figure style={{ backgroundImage: `url(//picsum.photos/700/${700 * i}/?random)` }}>
-              <img src={`//picsum.photos/200/200/?random`} />
-            </figure>
+  `)
+)(({ data: { loading, posts = [] } }) => (
+  <>
+    <Meta title="Blog" />
 
-            <aside>
-              <Link href="/blog/test-post">
-                <a>
-                  <h2 dangerouslySetInnerHTML={{ __html: title }} />
-                </a>
-              </Link>
+    <Grid center={true}>
+      {!loading && (
+        <Blog>
+          {posts.map(({ id, title, slug, img, body }) => (
+            <article key={`post-${id}`}>
+              {img && (
+                <figure style={{ backgroundImage: `url(${img.url})` }}>
+                  <img src={img.url} alt={title} />
+                </figure>
+              )}
 
-              <p>
-                {body.substr(0, 36)}
-                &hellip;
-              </p>
-            </aside>
-          </article>
-        ))}
-      </Blog>
-    )}
-  </Grid>
+              <aside>
+                <Link href={`/blog/${slug}`}>
+                  <a>
+                    <h2 dangerouslySetInnerHTML={{ __html: title }} />
+                  </a>
+                </Link>
+
+                {body && body.length && body[0].children[0].text.substr(0, 30)}
+              </aside>
+            </article>
+          ))}
+        </Blog>
+      )}
+    </Grid>
+  </>
 ))
 
 export const Blog = styled.div`
@@ -57,8 +70,8 @@ export const Blog = styled.div`
       bottom: 10vh;
       left: 40vw;
       margin: 0;
-      background: ${({ theme }) => theme.colours.ltBrand} url(//picsum.photos/1920/1080/?random) center / cover
-        no-repeat;
+      background: ${({ theme }) => theme.colours.ltBrand}
+        url(//picsum.photos/1920/1080/?random) center / cover no-repeat;
       background-blend-mode: screen;
 
       @media (max-width: 768px) {

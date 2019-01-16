@@ -1,23 +1,37 @@
+import { Post } from '@/server/schema'
 import { timingFunctions } from 'polished'
+import { compose, setDisplayName } from 'recompose'
 import styled from 'styled-components'
 
 import Caption from './caption'
 
-interface TOutter {
+interface TOutter extends Post {
   key?: any
-  name: string
-  img: string
+}
+
+interface TInner extends TOutter {
   onMouse: (e?: React.MouseEvent<HTMLDivElement>) => void
 }
 
-export default ({ onMouse, name, ...props }: TOutter) => (
-  <Card {...props}>
-    <div className="card-bg" onMouseDown={onMouse} onMouseEnter={onMouse} onMouseLeave={onMouse}>
-      <img alt="" src={props.img} />
-    </div>
+export default compose<TInner, TOutter>(setDisplayName('gallery-card'))(
+  ({ onMouse, title, images = [], ...props }) => (
+    <Card {...props}>
+      {images.length ? (
+        <div
+          className="card-bg"
+          onMouseDown={onMouse}
+          onMouseEnter={onMouse}
+          onMouseLeave={onMouse}
+          style={{
+            backgroundImage: `url(${images[0].url})`
+          }}>
+          <img src={images[0].url} alt={title} />
+        </div>
+      ) : null}
 
-    <Caption name={name} />
-  </Card>
+      <Caption title={title} />
+    </Card>
+  )
 )
 
 const Card = styled.figure`
@@ -44,7 +58,8 @@ const Card = styled.figure`
       transform: translate3d(0, 0, 0);
     }
 
-    &:before, &:after {
+    &:before,
+    &:after {
       content: '';
       position: absolute;
       top: 0;
@@ -65,7 +80,7 @@ const Card = styled.figure`
 
     &:after {
       mix-blend-mode: screen;
-      transition: .3s ${timingFunctions('easeInOutSine')};
+      transition: 0.3s ${timingFunctions('easeInOutSine')};
       background: ${({ theme }) => theme.colours.ltBrand};
     }
 

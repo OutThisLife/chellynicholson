@@ -1,0 +1,32 @@
+{
+  "name": "chellynicholson",
+  "private": true,
+  "version": "1.0.0",
+  "description": "",
+  "main": "package.json",
+  "author": "Talasan Nicholson <talasan.nicholson@gmail.com>",
+  "license": "UNLICENSED",
+  "scripts": {
+    "start": "sanity start",
+    "test": "sanity check"
+  },
+  "keywords": [
+    "sanity"
+  ],
+  "dependencies": {
+    "@sanity/base": "^0.139.6",
+    "@sanity/components": "^0.139.6",
+    "@sanity/core": "^0.139.6",
+    "@sanity/default-layout": "^0.139.6",
+    "@sanity/default-login": "^0.139.0",
+    "@sanity/desk-tool": "^0.139.6",
+    "prop-types": "^15.6",
+    "react": "^16.2",
+    "react-dom": "^16.2"
+  },
+  "devDependencies": {},
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:OutThisLife/chellynicholson.git"
+  }
+}

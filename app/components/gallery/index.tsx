@@ -8,7 +8,9 @@ interface TInner {
   variant?: 'normal' | 'fancy'
 }
 
-export default ({ children, ...props }: TInner) => <Gallery {...props}>{children}</Gallery>
+export default ({ children, ...props }: TInner) => (
+  <Gallery {...props}>{children}</Gallery>
+)
 
 const Gallery = styled.section`
   grid-column: 3 / -3;
@@ -106,7 +108,8 @@ const Gallery = styled.section`
             figure:nth-child(5) div {
               &:hover:before,
               &.open:before {
-                background-position: center calc(50% + (var(--mouseY, 1px) / 12));
+                background-position: center
+                  calc(50% + (var(--mouseY, 1px) / 12));
               }
             }
 
@@ -135,5 +138,6 @@ const Gallery = styled.section`
               grid-column: 21 / span 19;
               grid-row-end: span 6;
             }
-          `}
+          `};
+  }
 ` as any

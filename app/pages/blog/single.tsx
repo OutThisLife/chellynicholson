@@ -1,45 +1,70 @@
+import Meta from '@/lib/Meta'
+import { Post } from '@/server/schema'
 import { Grid, size } from '@/theme'
-import faker from 'faker'
+import BlockContent from '@sanity/block-content-to-react'
+import gql from 'graphql-tag'
 import Link from 'next/link'
+import { withRouter, WithRouterProps } from 'next/router'
+import { DataProps, graphql } from 'react-apollo'
+import { compose, setDisplayName } from 'recompose'
 import styled from 'styled-components'
 
 import { Blog } from '.'
 
-export default () => (
+export default compose<DataProps<{ post: Post }>, {}>(
+  setDisplayName('single'),
+  withRouter,
+  graphql<WithRouterProps, { slug: string }>(
+    gql`
+      query Post($slug: String!) {
+        post(slug: $slug) {
+          id
+          body
+          title
+          img {
+            url
+          }
+        }
+      }
+    `,
+    {
+      options: ({
+        router: {
+          query: { slug }
+        }
+      }) => ({ variables: { slug } })
+    }
+  )
+)(({ data: { post = {} } }) => (
   <Grid center={true}>
-    <Single>
-      <article key={Math.random()}>
-        <figure style={{ backgroundImage: `url(//picsum.photos/700/700/?random)` }}>
-          <img src={`//picsum.photos/200/200/?random`} />
-        </figure>
+    {!('title' in post) ? null : (
+      <Single>
+        <Meta title={`${post.title} - Blog`} />
 
-        <aside>
-          <Link href="/blog/test-post">
-            <a>
-              <h2>
-                {faker.lorem.sentence()}
-              </h2>
-            </a>
-          </Link>
+        <article>
+          {'img' in post && (
+            <figure style={{ backgroundImage: `url(${post.img.url})` }}>
+              <img src={`${post.img.url}`} alt={post.title} />
+            </figure>
+          )}
 
-          <div>
-            <p>{faker.lorem.paragraph()}</p>
-            <p>{faker.lorem.paragraph()}</p>
-            <p>{faker.lorem.paragraph()}</p>
-            <p>{faker.lorem.paragraph()}</p>
-            <p>{faker.lorem.paragraph()}</p>
-            <p>{faker.lorem.paragraph()}</p>
-            <img src={`//picsum.photos/900/900/?random`} />
-            <p>
-              Lorem ipsum dolor sit amet consectetur adipisicing elit. Ut inventore quo libero temporibus? Ullam mollitia suscipit dolorum. At, labore. Laboriosam nihil corporis accusantium, illo ratione eius eum fugiat maxime deserunt!
-            </p>
-            <p>{faker.lorem.paragraph()}</p>
-          </div>
-        </aside>
-      </article>
-    </Single>
+          <aside>
+            <Link href="/blog">
+              <a style={{ opacity: 0.5 }}>&laquo; Back</a>
+            </Link>
+
+            <h2 dangerouslySetInnerHTML={{ __html: post.title }} />
+            <time title={post.createdAt}>{post.createdAt}</time>
+
+            <div>
+              <BlockContent blocks={post.body} />
+            </div>
+          </aside>
+        </article>
+      </Single>
+    )}
   </Grid>
-)
+))
 
 const Single = styled(Blog)`
   article {

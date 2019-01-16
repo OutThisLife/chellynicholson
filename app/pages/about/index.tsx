@@ -1,59 +1,70 @@
+import Meta from '@/lib/Meta'
+import { Post } from '@/server/schema'
 import { Grid, size } from '@/theme'
+import BlockContent from '@sanity/block-content-to-react'
+import gql from 'graphql-tag'
 import { timingFunctions } from 'polished'
-import { withHandlers } from 'recompose'
+import { DataProps, graphql } from 'react-apollo'
+import { compose, setDisplayName, withHandlers } from 'recompose'
 import styled from 'styled-components'
 
 interface THandlers {
   onMouse: React.MouseEventHandler<any>
 }
 
-export default withHandlers<{}, THandlers>(() => ({
-  onMouse: () => ({ clientX, clientY, currentTarget }) => {
-    const { innerWidth, innerHeight } = window
-    const dist = clientX - innerWidth + (clientY - innerHeight)
+export default compose<THandlers & DataProps<{ post: Post }>, {}>(
+  setDisplayName('about'),
+  graphql(gql`
+    {
+      post(slug: "about") {
+        title
+        body
+        img {
+          url
+        }
+      }
+    }
+  `),
+  withHandlers<{}, THandlers>(() => ({
+    onMouse: () => ({ clientX, clientY, currentTarget }) => {
+      const { innerWidth, innerHeight } = window
+      const dist = clientX - innerWidth + (clientY - innerHeight)
 
-    currentTarget.style.setProperty('--mouseP', `${dist}px`)
-    currentTarget.style.setProperty('--mouseD', `${dist}deg`)
-  }
-}))(({ onMouse }) => (
-  <Grid center={true} onMouseMove={onMouse}>
-    <About>
-      <div className="bg" />
+      currentTarget.style.setProperty('--mouseP', `${dist}px`)
+      currentTarget.style.setProperty('--mouseD', `${dist}deg`)
+    }
+  }))
+)(({ onMouse, data: { post = {} } }) => (
+  <>
+    <Meta title="About Me" />
 
-      <h1>
-        <span>
-          About Me
-        </span>
-      </h1>
+    {'title' in post && (
+      <Grid center={true} onMouseMove={onMouse}>
+        <About>
+          {'img' in post && (
+            <div
+              className="bg"
+              style={{
+                backgroundImage: `url(${post.img.url})`
+              }}
+            />
+          )}
 
-      <h2>
-        <span>birth photographer, mom advocate, beautiful baebee</span>
-      </h2>
+          <h1>
+            <span dangerouslySetInnerHTML={{ __html: post.title }} />
+          </h1>
 
-      <div>
-        <p>
-          Lorem, ipsum dolor sit amet consectetur adipisicing elit. Iusto totam harum facilis laborum hic dolorem quos
-          est aut, illo aspernatur omnis, repudiandae architecto praesentium neque adipisci, molestiae necessitatibus
-          non fugit!
-        </p>
-        <p>
-          Lorem, ipsum dolor sit amet consectetur adipisicing elit. Iusto totam harum facilis laborum hic dolorem quos
-          est aut, illo aspernatur omnis, repudiandae architecto praesentium neque adipisci, molestiae necessitatibus
-          non fugit!
-        </p>
-        <p>
-          Lorem, ipsum dolor sit amet consectetur adipisicing elit. Iusto totam harum facilis laborum hic dolorem quos
-          est aut, illo aspernatur omnis, repudiandae architecto praesentium neque adipisci, molestiae necessitatibus
-          non fugit!
-        </p>
-        <p>
-          Lorem, ipsum dolor sit amet consectetur adipisicing elit. Iusto totam harum facilis laborum hic dolorem quos
-          est aut, illo aspernatur omnis, repudiandae architecto praesentium neque adipisci, molestiae necessitatibus
-          non fugit!
-        </p>
-      </div>
-    </About>
-  </Grid>
+          <h2>
+            <span>birth &amp; life photographer</span>
+          </h2>
+
+          <div>
+            <BlockContent blocks={post.body} />
+          </div>
+        </About>
+      </Grid>
+    )}
+  </>
 ))
 
 const About = styled.div`
@@ -72,7 +83,9 @@ const About = styled.div`
     bottom: 0;
     width: 40vw;
     height: 70vh;
-    background: ${({ theme }) => theme.colours.ltBrand} url(//scontent-dfw5-1.xx.fbcdn.net/v/t1.0-9/17862504_1286793721441445_7288108073519538977_n.jpg?_nc_cat=102&oh=f51a6e939596f3edd4ced94b64885815&oe=5C26CF06) center / cover no-repeat;
+    background: ${({ theme }) => theme.colours.ltBrand}
+      url(//scontent-dfw5-1.xx.fbcdn.net/v/t1.0-9/17862504_1286793721441445_7288108073519538977_n.jpg?_nc_cat=102&oh=f51a6e939596f3edd4ced94b64885815&oe=5C26CF06)
+      center / cover no-repeat;
 
     &:not(:hover) {
       transform: scaleX(-1);
@@ -95,7 +108,7 @@ const About = styled.div`
       bottom: 0;
       left: 0;
       mix-blend-mode: screen;
-      transition: .3s ${timingFunctions('easeInOutSine')};
+      transition: 0.3s ${timingFunctions('easeInOutSine')};
       background: ${({ theme }) => theme.colours.ltBrand};
     }
   }

@@ -33,9 +33,7 @@ const plugins = [
 ]
 
 const config = {
-  publicRuntimeConfig: {
-    dropboxAccessToken: process.env.DROPBOX
-  },
+  publicRuntimeConfig: {},
   webpack(config) {
     config.module.rules.push(
       {

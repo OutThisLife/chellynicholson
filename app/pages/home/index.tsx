@@ -1,14 +1,21 @@
 import Quote from '@/components/quote'
+import Slideshow from '@/components/slideshow'
 import Images from '@/pages/home/images'
+import { Post } from '@/server/schema'
 import { Grid } from '@/theme'
-import { compose, withHandlers, withState } from 'recompose'
+import { ApolloClient } from 'apollo-boost'
+import gql from 'graphql-tag'
+import Head from 'next/head'
+import { withApollo } from 'react-apollo'
+import { compose, setDisplayName, withHandlers, withState } from 'recompose'
 
 interface TInner {
-  animTarget?: HTMLElement
+  client: ApolloClient<{}>
+  animTarget?: Partial<Post>
 }
 
 interface TState {
-  setAnimTarget: (a?: HTMLElement, cb?: () => void) => void
+  setAnimTarget: (a?: Partial<Post>, cb?: () => void) => void
 }
 
 interface THandlers {
@@ -18,7 +25,9 @@ interface THandlers {
 }
 
 export default compose<TInner & THandlers & TState, TInner>(
+  setDisplayName('homepage'),
   withState('animTarget', 'setAnimTarget', undefined),
+  withApollo,
   withHandlers<TState & TInner, THandlers>(() => ({
     onMove: () => ({ clientX, clientY, target, currentTarget }) => {
       const { innerWidth, innerHeight } = window
@@ -26,7 +35,10 @@ export default compose<TInner & THandlers & TState, TInner>(
       const x = clientX - innerWidth / 2
       const y = clientY - innerHeight / 2
 
-      if (target instanceof HTMLElement && target.classList.contains('card-bg')) {
+      if (
+        target instanceof HTMLElement &&
+        target.classList.contains('card-bg')
+      ) {
         const { clientWidth } = target.nextElementSibling.firstElementChild
         const cx = Math.min(innerWidth - clientWidth, clientX - clientWidth / 2)
 
@@ -37,17 +49,31 @@ export default compose<TInner & THandlers & TState, TInner>(
       currentTarget.style.setProperty('--mouseY', `${y}px`)
     },
 
-    onMouse: ({ setAnimTarget, animTarget }) => ({ button, type, currentTarget }) => {
+    onMouse: ({ setAnimTarget, animTarget, client }) => async ({
+      button,
+      type,
+      currentTarget
+    }) => {
+      console.log(currentTarget.closest('[id]'))
       if (animTarget) {
         return
       }
 
       const $single = document.getElementById('single')
-      const $siblings = [].slice.call(document.getElementsByClassName('card-bg')).filter(el => el !== currentTarget)
+      const $siblings = [].slice
+        .call(document.getElementsByClassName('card-bg'))
+        .filter(el => el !== currentTarget)
 
       if (!button && type === 'mousedown') {
-        currentTarget.classList.add('open')
-        return setAnimTarget(currentTarget)
+        const res = await client.query({
+          query: gql`
+          {
+            res: q(q: "*[_id == '${currentTarget.dataset.id}'][0]")
+          }`
+        })
+
+        // currentTarget.classList.add('open')
+        // return setAnimTarget(currentTarget)
       }
 
       for (let i = 0, len = $siblings.length; i < len; i++) {
@@ -58,14 +84,22 @@ export default compose<TInner & THandlers & TState, TInner>(
 
       setTimeout(() => {
         const { innerWidth, innerHeight } = window
-        const { top, right, bottom, left } = currentTarget.getBoundingClientRect()
+        const {
+          top,
+          right,
+          bottom,
+          left
+        } = currentTarget.getBoundingClientRect()
 
         const t = Math.round(top)
         const r = Math.round(innerWidth - right - 20)
         const b = Math.round(innerHeight - bottom)
         const l = Math.round(left)
 
-        $single.style.setProperty('--clip', `inset(${t}px ${r}px ${b}px ${l}px)`)
+        $single.style.setProperty(
+          '--clip',
+          `inset(${t}px ${r}px ${b}px ${l}px)`
+        )
       }, 150)
     },
 
@@ -82,11 +116,19 @@ export default compose<TInner & THandlers & TState, TInner>(
     }
   }))
 )(({ animTarget, onMove, onMouse, onReset }) => (
-  <Grid onMouseMove={onMove}>
-    {/* <Slideshow id="single" reset={onReset} path={animTarget ? animTarget.dataset.path : undefined} /> */}
+  <>
+    <Head>
+      <title key="title">Chelsea Nicholson Photography</title>
+    </Head>
 
-    <Images path="Featured" variant="fancy" onMouse={onMouse} />
-    <Quote />
-    <Images path="Portfolio" onMouse={onMouse} />
-  </Grid>
+    <Grid onMouseMove={onMove}>
+      {'browser' in process && (
+        <Slideshow id="single" reset={onReset} target={animTarget} />
+      )}
+
+      <Images variant="fancy" onMouse={onMouse} />
+      <Quote />
+      {/* <Images path="Portfolio" onMouse={onMouse} /> */}
+    </Grid>
+  </>
 ))

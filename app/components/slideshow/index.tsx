@@ -1,10 +1,10 @@
-import { getSlides } from '@/lib/queries'
-import { Gallery } from '@/server/schema'
+import { Post } from '@/server/schema'
 import { size } from '@/theme'
-import { DataValue } from 'react-apollo'
 import {
   compose,
+  defaultProps,
   lifecycle,
+  setDisplayName,
   withHandlers,
   withPropsOnChange,
   withState
@@ -13,12 +13,8 @@ import styled from 'styled-components'
 
 interface TOutter {
   id: string
-  path: string
+  target?: Partial<Post>
   reset: () => void
-}
-
-interface TInner {
-  data: DataValue<{ slideshow: Gallery }>
 }
 
 interface TState {
@@ -35,8 +31,11 @@ interface THandles {
   exit?: React.MouseEventHandler<any>
 }
 
-export default compose<TInner & TOutter & THandles & TState, TOutter>(
-  getSlides(),
+export default compose<TOutter & THandles & TState, TOutter>(
+  setDisplayName('slideshow'),
+  defaultProps({
+    target: {}
+  }),
   withState('slide', 'setSlide', 0),
   withHandlers<TState & TOutter, THandles>(() => ({
     goToSlide: ({ setSlide, slide }) => nextSlide =>
@@ -104,17 +103,19 @@ export default compose<TInner & TOutter & THandles & TState, TOutter>(
         })
       })
   })),
-  withHandlers<TInner & TState & TOutter & THandles, THandles>(() => ({
+  withHandlers<TState & TOutter & THandles, THandles>(() => ({
     prev: ({ slide, goToSlide }) => () => goToSlide(Math.max(0, slide - 1)),
-    next: ({ slide, goToSlide, data }) => () => goToSlide(Math.min(data.slideshow.files.length - 1, slide + 1)),
-    exit: ({ setSlide, toggle }) => ({ button }) => !button && setSlide(0, () => toggle(false))
+    next: ({ slide, goToSlide, target }) => () =>
+      goToSlide(Math.min(target.images.length - 1, slide + 1)),
+    exit: ({ setSlide, toggle }) => ({ button }) =>
+      !button && setSlide(0, () => toggle(false))
   })),
-  withPropsOnChange<TOutter, TInner & TOutter & THandles>(['data', 'slide'], props => {
+  withPropsOnChange<TOutter, TOutter & THandles>(['data', 'slide'], props => {
     if (typeof window === 'undefined') {
       return props
     }
 
-    if (props.data.slideshow.files.length) {
+    if ('images' in props.target) {
       props.toggle(true)
     }
 
@@ -122,38 +123,52 @@ export default compose<TInner & TOutter & THandles & TState, TOutter>(
   }),
   lifecycle({
     componentWillUnmount() {
-      document.querySelector('header').classList.remove('invert')
-      document.getElementById('story').classList.remove('show')
+      try {
+        document.querySelector('header').classList.remove('invert')
+        document.getElementById('story').classList.remove('show')
+      } catch (e) {
+        // noop
+      }
     }
   })
-)(({ data: { slideshow }, slide, prev, next, exit, data, ...props }) => (
+)(({ slide, prev, next, exit, target, ...props }) => (
   <Slideshow {...props}>
-    <nav>
-      <a href="javascript:;" disabled={slide === 0} onClick={prev}>
-        Prev
-      </a>
+    {'images' in target && (
+      <nav>
+        <a href="javascript:;" disabled={slide === 0} onClick={prev}>
+          Prev
+        </a>
 
-      <a href="javascript:;" onClick={exit}>
-        Exit
-      </a>
+        <a href="javascript:;" onClick={exit}>
+          Exit
+        </a>
 
-      <a href="javascript:;" disabled={slide === data.slides.length - 1} onClick={next}>
-        Next
-      </a>
-    </nav>
+        <a
+          href="javascript:;"
+          disabled={slide === target.images.length - 1}
+          onClick={next}>
+          Next
+        </a>
+      </nav>
+    )}
 
-    {slideshow.files.map(({ id, url }, i) => (
-      <figure key={id} className={i === slide ? 'active' : ''} style={{ backgroundImage: `url(${url})` }} />
-    ))}
+    {'images' in target &&
+      target.images.map((im, i) => (
+        <figure
+          key={im.url.substring(0, 15)}
+          className={i === slide ? 'active' : ''}
+          style={{ backgroundImage: `url(${im.url})` }}
+        />
+      ))}
 
-    {'name' in slideshow && (
+    {/* {'name' in slideshow && (
       <figcaption>
         <div>
           <h2>{slideshow.name}</h2>
           <div dangerouslySetInnerHTML={{ __html: slideshow.path }} />
         </div>
       </figcaption>
-    )}
+    )} */}
   </Slideshow>
 ))
 
@@ -191,7 +206,8 @@ const Slideshow = styled.div`
     margin: 0;
     will-change: transform;
     transform: translate3d(0, 0, 0);
-    background: fixed ${({ theme }) => theme.colours.base} center top / cover no-repeat;
+    background: fixed ${({ theme }) => theme.colours.base} center top / cover
+      no-repeat;
 
     &:not(.no-anim) {
       transition: transform ${({ theme }) => theme.timings.base};

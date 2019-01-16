@@ -32,12 +32,31 @@ export default withHandlers<{}, THandles>(() => ({
       </Link>
 
       <nav>
-        <Link href="/"><a>portfolio</a></Link>
-        <Link prefetch href="/about"><a>about</a></Link>
-        <Link prefetch href="/blog"><a>blog</a></Link>
+        <Link href="/">
+          <a>portfolio</a>
+        </Link>
 
-        <a href="//instagram.com" target="_blank" rel="noopener">[ig]</a>
-        <a href="//instagram.com" target="_blank" rel="noopener">[fb]</a>
+        <Link prefetch href="/about">
+          <a>about</a>
+        </Link>
+
+        <Link prefetch href="/blog">
+          <a>blog</a>
+        </Link>
+
+        <a
+          href="//instagram.com/chellynicholson"
+          target="_blank"
+          rel="noopener">
+          [ig]
+        </a>
+
+        <a
+          href="//facebook.com/chellynicholsonphotography"
+          target="_blank"
+          rel="noopener">
+          [fb]
+        </a>
       </nav>
     </div>
 

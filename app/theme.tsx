@@ -18,42 +18,37 @@ export const fonts = {
     copy: 'Josefin Sans',
     src() {
       const fmt = (s: string): string => s.replace(' ', '+')
-      return `//fonts.googleapis.com/css?family=${fmt(this.title)}|${fmt(this.copy)}`
+      return `//fonts.googleapis.com/css?family=${fmt(this.title)}|${fmt(
+        this.copy
+      )}`
     }
   }
 }
 
 export const timings = {
   easing: timingFunctions('easeInOutCubic'),
-  get base() { return `0.33s ${this.easing}` },
-  get fast() { return `0.15s ${this.easing}` }
+  get base() {
+    return `0.33s ${this.easing}`
+  },
+  get fast() {
+    return `0.15s ${this.easing}`
+  }
 }
 
 // ---------------------------
 
-export const Grid = styled.div.attrs({
-  style: ({ center = false }: { center?: boolean }) => ({
-    minHeight: center && 'calc(100vh - ((100vh/40) * 9))',
-    alignItems: center && 'center'
-  })
-})`
+export const Grid = styled.div`
   display: grid;
   grid-template-columns: repeat(40, 1fr);
   grid-template-rows: auto;
   width: 100%;
+
+  min-height: ${({ center }: any) =>
+    center && 'calc(100vh - ((100vh/40) * 9))'};
+  align-items: ${({ center }: any) => center && 'center'};
 ` as any
 
 export const size = (scale: number): string => `calc(${scale} * (100vmin / 40))`
-
-// ---------------------------
-
-export default {
-  colours,
-  fonts,
-  timings
-}
-
-// ---------------------------
 
 export const glitch = keyframes`
   0% {
@@ -68,3 +63,17 @@ export const glitch = keyframes`
 		filter: hue-rotate(360deg);
 	}
 `
+
+// ---------------------------
+
+const theme = {
+  colours,
+  fonts,
+  timings
+}
+
+export type ChellyTheme = typeof theme & any
+
+// ---------------------------
+
+export default theme

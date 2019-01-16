@@ -1,8 +1,8 @@
 import styled from 'styled-components'
 
-export default ({ name = '' }: { name: string }) => (
+export default ({ title = '' }: { title: string }) => (
   <Caption>
-    <h1 dangerouslySetInnerHTML={{ __html: name.replace(/\s+/g, '<br />') }} />
+    <h1 dangerouslySetInnerHTML={{ __html: title.replace(/\s+/g, '<br />') }} />
   </Caption>
 )
 
@@ -24,7 +24,11 @@ const Caption = styled.figcaption`
     font-weight: 500;
     text-transform: uppercase;
     margin: 0;
-    transform: translate3d(calc(0% + var(--captionX, 0px)), calc(0% + var(--mouseY, 0)), 0);
+    transform: translate3d(
+      calc(0% + var(--captionX, 0px)),
+      calc(0% + var(--mouseY, 0)),
+      0
+    );
 
     @media (max-width: 768px) {
       font-size: 8vmax;
