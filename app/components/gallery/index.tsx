@@ -19,10 +19,6 @@ const Gallery = styled.section`
   position: relative;
   width: 100%;
 
-  figure img {
-    display: none;
-  }
-
   @media (min-width: 768px) {
     figure div:hover,
     figure div.open {
@@ -37,6 +33,10 @@ const Gallery = styled.section`
             ? css`calc(50% + (var(--mouseX, 1px) / 12)) center`
             : css`center calc(50% + (var(--mouseY, 1px) / 12));`};
       }
+    }
+
+    figure img {
+      display: none;
     }
 
     ${({ variant }: TInner) =>

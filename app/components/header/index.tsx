@@ -72,11 +72,18 @@ export const Header = styled.header`
   position: fixed;
   top: 0;
   width: 100%;
-  white-space: nowrap;
   padding: ${size(1)};
 
+  @media (min-width: 768px) {
+    white-space: nowrap;
+  }
+
   @media (max-width: 768px) {
-    background: ${({ theme }) => theme.colours.bg};
+    flex-wrap: wrap;
+
+    &:not(.invert) {
+      background: ${({ theme }) => theme.colours.bg};
+    }
   }
 
   a {
@@ -90,9 +97,11 @@ export const Header = styled.header`
       text-transform: uppercase;
 
       @media (max-width: 768px) {
-        width: 30vw;
+        display: block;
+        width: 100%;
         line-height: inherit;
         white-space: normal;
+        padding: 10px 7px 0;
       }
     }
 
@@ -116,7 +125,10 @@ export const Header = styled.header`
 
   nav {
     display: inline-flex;
-    margin-left: ${size(2)};
+
+    @media (min-width: 768px) {
+      margin-left: ${size(2)};
+    }
 
     span {
       opacity: 0.3;

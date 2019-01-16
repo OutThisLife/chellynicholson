@@ -215,7 +215,6 @@ const Slideshow = styled.div`
     bottom: 0;
     left: 0;
     margin: 0;
-    will-change: transform;
     transform: translate3d(0, 0, 0);
     background: fixed ${({ theme }) => theme.colours.base} center top / cover
       no-repeat;
@@ -286,6 +285,7 @@ const Slideshow = styled.div`
     right: 0;
     bottom: 0;
     left: 0;
+    transform: translateZ(0);
 
     a {
       z-index: 1;

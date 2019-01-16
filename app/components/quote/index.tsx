@@ -19,6 +19,7 @@ const Quote = styled.blockquote`
 
   @media (max-width: 768px) {
     grid-column: 3 / -3;
+    margin: 5vw auto;
   }
 
   q,
