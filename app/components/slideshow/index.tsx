@@ -131,6 +131,10 @@ export default compose<TOutter & THandles & TState, TOutter>(
   }),
   lifecycle<any, {}>({
     componentWillUnmount() {
+      document.body.style.position = ''
+      document.body.style.top = ''
+      document.body.style.height = ''
+
       try {
         document.querySelector('header').classList.remove('invert')
         document.getElementById('story').classList.remove('show')
