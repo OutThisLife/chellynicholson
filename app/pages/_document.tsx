@@ -1,3 +1,4 @@
+import favicon from '@/static/img/favicon.png'
 import { colours as colourVars, fonts as fontVars } from '@/theme'
 import Document, { Head, Main, NextScript } from 'next/document'
 import { ServerStyleSheet } from 'styled-components'
@@ -21,7 +22,7 @@ export default class extends Document<any> {
           <meta name="theme-color" content={colourVars.brand} />
           <meta name="viewport" content="width=device-width, initial-scale=1" />
           <meta httpEquiv="X-UA-Compatible" content="IE=edge,chrome=1" />
-          <meta name="robots" content="noindex" />
+          <meta name="robots" content="index" />
 
           <link
             rel="stylesheet"
@@ -29,6 +30,7 @@ export default class extends Document<any> {
           />
 
           <link rel="stylesheet" href={fontVars.family.src()} />
+          <link rel="shortcut icon" href={favicon} />
 
           {this.props.styleTags}
 
@@ -40,11 +42,15 @@ export default class extends Document<any> {
           <NextScript />
 
           <script
+            src="//www.googletagmanager.com/gtag/js?id=UA-10405648-10"
             async
-            src="https://www.googletagmanager.com/gtag/js?id=UA-10405648-10"
           />
 
-          <script>{`window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'UA-10405648-10');`}</script>
+          <script
+            dangerouslySetInnerHTML={{
+              __html: `window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);};gtag('js', new Date());gtag('config', 'UA-10405648-10');`
+            }}
+          />
         </body>
       </html>
     )

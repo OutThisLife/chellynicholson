@@ -39,7 +39,7 @@ export default compose<DataProps<{ post: Post }>, {}>(
   <Grid center={true}>
     {!('title' in post) ? null : (
       <Single>
-        <Meta title={`${post.title} - Blog`} />
+        <Meta title={`${post.title} / Blog`} />
 
         <article>
           {'img' in post && (

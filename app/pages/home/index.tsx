@@ -165,8 +165,8 @@ export default compose<TInner & THandlers & TState, TInner>(
       <Images variant="fancy" onMouse={onMouse} />
 
       <Quote
-        copy="Though we travel the world over to find the beautiful, we must carry it with us or we find it not."
-        cite="Ralph Waldo Emerson"
+        copy="A baby is born with the need to be loved &ndash; and never outgrows it."
+        cite="Frank A. Clark"
       />
 
       <Images onMouse={onMouse} />
