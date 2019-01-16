@@ -5,6 +5,7 @@ import styled from 'styled-components'
 
 interface TOutter extends Post {
   key?: any
+  variant?: 'normal' | 'fancy'
 }
 
 interface TInner extends TOutter {
@@ -12,8 +13,8 @@ interface TInner extends TOutter {
 }
 
 export default compose<TInner, TOutter>(setDisplayName('gallery-card'))(
-  ({ onMouse, id, title, images = [], ...props }) => (
-    <Card {...props}>
+  ({ onMouse, id, title, slug, images = [], variant, ...props }) => (
+    <Card data-slug={slug} {...props}>
       {images.length ? (
         <div
           className="card-bg"
@@ -22,7 +23,9 @@ export default compose<TInner, TOutter>(setDisplayName('gallery-card'))(
           onMouseEnter={onMouse}
           onMouseLeave={onMouse}
           style={{
-            backgroundImage: `url(${images[0].url})`
+            backgroundImage: `url(${images[0].url}?w=${
+              variant === 'fancy' ? '1600' : '1200'
+            })`
           }}>
           <img src={images[0].url} alt={title} />
         </div>

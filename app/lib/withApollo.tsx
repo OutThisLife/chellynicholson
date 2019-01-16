@@ -4,8 +4,6 @@ import { getDataFromTree } from 'react-apollo'
 
 import initApollo from './initApollo'
 
-const dev = process.env.NODE_ENV !== 'production'
-
 export default App =>
   class extends Component {
     public static displayName = 'withApollo(App)'
@@ -19,14 +17,12 @@ export default App =>
           appProps = await App.getInitialProps(ctx)
         }
 
-        await getDataFromTree(<App {...appProps} apolloClient={apollo} {...ctx} />)
+        await getDataFromTree(
+          <App {...appProps} apolloClient={apollo} {...ctx} />
+        )
       } catch (err) {
-        if (dev) {
-          console.error(err)
-        } else if ('slug' in ctx.router.query) {
-          err.code = 'ENOENT'
-          throw err
-        }
+        err.code = 'ENOENT'
+        throw err
       }
 
       return {

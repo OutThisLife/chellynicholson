@@ -36,7 +36,7 @@ export default compose<THandlers & DataProps<{ post: Post }>, {}>(
   }))
 )(({ onMouse, data: { post = {} } }) => (
   <>
-    <Meta title="About Me" />
+    <Meta title="About" />
 
     {'title' in post && (
       <Grid center={true} onMouseMove={onMouse}>

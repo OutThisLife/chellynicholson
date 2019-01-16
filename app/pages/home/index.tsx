@@ -7,7 +7,13 @@ import { Grid } from '@/theme'
 import { ApolloClient } from 'apollo-boost'
 import gql from 'graphql-tag'
 import { withApollo } from 'react-apollo'
-import { compose, setDisplayName, withHandlers, withState } from 'recompose'
+import {
+  compose,
+  lifecycle,
+  setDisplayName,
+  withHandlers,
+  withState
+} from 'recompose'
 
 interface TInner {
   client: ApolloClient<{}>
@@ -28,8 +34,8 @@ interface THandlers {
 
 export default compose<TInner & THandlers & TState, TInner>(
   setDisplayName('homepage'),
-  withState('animTarget', 'setAnimTarget', {}),
   withApollo,
+  withState('animTarget', 'setAnimTarget', {}),
   withHandlers<TState & TInner, THandlers>(() => ({
     onMove: () => ({ clientX, clientY, target, currentTarget }) => {
       const { innerWidth, innerHeight } = window
@@ -56,6 +62,7 @@ export default compose<TInner & THandlers & TState, TInner>(
       type,
       currentTarget
     }) => {
+      console.log(button, type)
       if ('images' in animTarget) {
         return
       }
@@ -71,7 +78,7 @@ export default compose<TInner & THandlers & TState, TInner>(
           {
             q(q: "*[_id == '${
               currentTarget.dataset.ref
-            }'][0] { ..., 'images': images[].asset->{url} }")
+            }'][0] { ..., 'slug': slug.current, 'images': images[].asset->{'id':assetId,url} }")
           }`
         })
 
@@ -121,13 +128,38 @@ export default compose<TInner & THandlers & TState, TInner>(
 
       if (animTarget.el instanceof HTMLElement) {
         animTarget.el.classList.remove('open')
+
+        window.history.replaceState(
+          {},
+          document.querySelector('title').textContent,
+          '/'
+        )
+
         setTimeout(() => setAnimTarget({ el: animTarget.el }), 700)
       }
     }
-  }))
+  })),
+  lifecycle<any, {}>({
+    componentDidMount() {
+      if (!('browser' in process || location.pathname.endsWith('/'))) {
+        return
+      }
+
+      const el = document.querySelector(
+        `[data-slug='${location.pathname.substr(1)}'] .card-bg`
+      )
+
+      if (el instanceof HTMLElement) {
+        const evt = document.createEvent('MouseEvents')
+        evt.initEvent('mousedown', true, true)
+
+        window.requestAnimationFrame(() => el.dispatchEvent(evt))
+      }
+    }
+  })
 )(({ animTarget, onMove, onMouse, onReset }) => (
   <>
-    <Meta title="(●´ω｀●)" />
+    <Meta title="Portfolio" />
 
     <Grid onMouseMove={onMove}>
       <Slideshow id="single" reset={onReset} target={animTarget} />

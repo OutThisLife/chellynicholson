@@ -1,7 +1,7 @@
 import { gql, IResolvers } from 'apollo-server-express'
 import * as JSON from 'graphql-type-json'
 
-import { cache } from '.'
+import { cache, isDev } from '.'
 
 require('dotenv').config()
 
@@ -63,6 +63,7 @@ export const typeDefs = gql`
   }
 
   type Image {
+    id: ID!
     url: String
   }
 `
@@ -75,16 +76,15 @@ export interface Post {
   createdAt?: string
   featured?: boolean
   img?: {
+    id: string
     url: string
   }
-  images?: Array<{ url: string }>
+  images?: Array<Post['img']>
   category?: {
     title: string
     slug: string
   }
 }
-
-const isDev = process.env.NODE_ENV !== 'production'
 
 export default {
   context: { cache },
@@ -102,7 +102,7 @@ const postFrag = `
 'id': _id,
 'slug': slug.current,
 'createdAt': _createdAt,
-'img': images.asset->{url}
+'img': images.asset->{'id':assetId,url}
 `
 
 const imgFrag = `
@@ -110,6 +110,6 @@ const imgFrag = `
 'id': _id,
 'slug': slug.current,
 'createdAt': _createdAt,
-'images': images[].asset->{url},
+'images': images[].asset->{'id':assetId,url},
 category->{title, slug},
 `

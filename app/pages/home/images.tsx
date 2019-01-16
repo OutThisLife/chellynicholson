@@ -23,6 +23,7 @@ export default compose<TInner & TOutter, TOutter>(
         id
         featured
         images {
+          id
           url
         }
         slug
@@ -30,13 +31,13 @@ export default compose<TInner & TOutter, TOutter>(
       }
     }
   `)
-)(({ variant, data: { gallery = [] }, ...props }) => (
-  <ImageGallery variant={variant}>
+)(({ data: { gallery = [] }, ...props }) => (
+  <ImageGallery variant={props.variant}>
     {orderBy(
-      gallery.filter(g => (variant === 'fancy' ? g.featured : !g.featured)),
+      gallery.filter(g => Boolean(g.featured) === (props.variant === 'fancy')),
       'order'
-    ).map(set => (
-      <Card key={set.id} {...set} {...props} />
+    ).map(piece => (
+      <Card key={piece.id} {...piece} {...props} />
     ))}
   </ImageGallery>
 ))

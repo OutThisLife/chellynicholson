@@ -10,16 +10,16 @@ import * as path from 'path'
 
 import schema from './schema'
 
-const dev = process.env.NODE_ENV !== 'production'
+export const isDev = process.env.NODE_ENV !== 'production'
 
-if (!dev && process.env.NEW_RELIC_HOME) {
+if (!isDev && process.env.NEW_RELIC_HOME) {
   require('newrelic')
 }
 
 const dir = path.resolve(process.cwd(), 'app')
 const port = parseInt(process.env.PORT, 10) || 3000
 
-const nextApp = next({ dir, dev, quiet: true })
+const nextApp = next({ dir, dev: isDev, quiet: true })
 const handle = nextApp.getRequestHandler()
 
 export const cache = new LRU({
@@ -35,7 +35,7 @@ const render = (page = '/') => (
 ) => {
   const key = req.url
 
-  if (!dev && cache.has(key)) {
+  if (!isDev && cache.has(key)) {
     res.setHeader('x-cache', 'HIT')
     res.send(cache.get(key))
     return
@@ -75,24 +75,10 @@ nextApp.prepare().then(() => {
       })
     )
 
-    .use(({ secure, headers, hostname, url }, res, resolve) => {
-      if (!dev && !secure && headers['x-forwarded-proto'] !== 'https') {
-        return res.redirect(`https://${hostname}${url}`)
-      }
-
-      return resolve()
-    })
-
     .use((req, res, resolve) => {
-      if (!('API_URL' in nextApp.nextConfig.publicRuntimeConfig)) {
-        Object.defineProperty(
-          nextApp.nextConfig.publicRuntimeConfig,
-          'API_URL',
-          {
-            value: `${req.protocol}://${req.headers.host}/graphql`
-          }
-        )
-      }
+      ;(nextApp.nextConfig.publicRuntimeConfig as any).API_URL = `${
+        req.protocol
+      }://${req.headers.host}/graphql`
 
       let staticUrl
 
@@ -113,13 +99,10 @@ nextApp.prepare().then(() => {
 
   app
     .get('/', render('/home'))
-
     .get('/about', render('/about'))
     .get('/blog', render('/blog'))
-
     .get('/blog/:slug([a-zA-Z0-9.-]+)', render('/blog/single'))
-    .get('/:slug([a-zA-Z0-9.-]+)', render('/home/single'))
-
+    .get('/:slug([a-zA-Z0-9.-]+)', render('/home'))
     .get('*', handle as RequestHandlerParams)
 
     .listen(port, err => {

@@ -25,8 +25,9 @@ interface TState {
 }
 
 interface THandles {
+  onRef?: (ref: HTMLElement) => void
   goToSlide?: (nextSlide: number) => void
-  toggle?: (isOpen: boolean) => void
+  toggle?: (isOpen: boolean, target?: TOutter['target']) => void
 
   prev?: React.MouseEventHandler<any>
   next?: React.MouseEventHandler<any>
@@ -60,53 +61,55 @@ export default compose<TOutter & THandles & TState, TOutter>(
         })
       }),
 
-    toggle: ({ target, reset }) => (isOpen = false) =>
-      window.requestAnimationFrame(() => {
-        const $single = document.getElementById('single')
-        const $header = document.querySelector('header')
-        const $story = document.getElementById('story')
+    toggle: ({ target: originalTarget, reset }) => (
+      isOpen = false,
+      target = originalTarget
+    ) => {
+      const $single = document.getElementById('single')
+      const $header = document.querySelector('header')
+      const $story = document.getElementById('story')
 
-        if (isOpen) {
-          ;(window as any).lastY = window.scrollY
+      if (isOpen) {
+        ;(window as any).lastY = window.scrollY
 
-          if ('body' in target) {
-            $story.textContent = 'story'
+        $story.textContent = 'story'
+        $single.classList.add('in')
+
+        window.history.replaceState({}, target.title, target.slug)
+
+        window.requestAnimationFrame(() => {
+          $header.classList.add('invert')
+
+          document.body.style.position = 'fixed'
+          document.body.style.top = `${-(window as any).lastY}px`
+          document.body.style.height = '100vh'
+
+          setTimeout(() => window.scrollTo(0, 0), 25)
+          $story.classList.add('show')
+        })
+
+        return
+      } else if ($single instanceof HTMLElement) {
+        window.history.replaceState({}, document.title, location.pathname)
+
+        $single.classList.remove('in')
+
+        window.requestAnimationFrame(() => {
+          $header.classList.remove('invert')
+
+          if ($story) {
+            $story.className = ''
           }
 
-          $single.classList.add('in')
+          document.body.style.position = ''
+          document.body.style.top = ''
+          document.body.style.height = ''
 
-          window.requestAnimationFrame(() => {
-            $header.classList.add('invert')
-
-            document.body.style.position = 'fixed'
-            document.body.style.top = `${-(window as any).lastY}px`
-            document.body.style.height = '100vh'
-
-            setTimeout(() => window.scrollTo(0, 0), 25)
-
-            $story.classList.add('show')
-          })
-
-          return
-        } else if ($single instanceof HTMLElement) {
-          $single.classList.remove('in')
-
-          window.requestAnimationFrame(() => {
-            $header.classList.remove('invert')
-
-            if ($story) {
-              $story.className = ''
-            }
-
-            document.body.style.position = ''
-            document.body.style.top = ''
-            document.body.style.height = ''
-
-            setTimeout(() => window.scrollTo(0, (window as any).lastY), 25)
-            reset()
-          })
-        }
-      })
+          setTimeout(() => window.scrollTo(0, (window as any).lastY), 25)
+          reset()
+        })
+      }
+    }
   })),
   withHandlers<TState & TOutter & THandles, THandles>(() => ({
     prev: ({ slide, goToSlide }) => () => goToSlide(Math.max(0, slide - 1)),
@@ -118,18 +121,15 @@ export default compose<TOutter & THandles & TState, TOutter>(
       !button && setSlide(0, () => toggle(false))
   })),
   withPropsOnChange<TOutter, TOutter & THandles>(['target', 'slide'], props => {
-    console.log('[slideshow]', props)
     if (!('browser' in process)) {
       return props
-    }
-
-    if ('images' in props.target) {
+    } else if ('images' in props.target) {
       props.toggle(true)
     }
 
     return props
   }),
-  lifecycle({
+  lifecycle<any, {}>({
     componentWillUnmount() {
       try {
         document.querySelector('header').classList.remove('invert')
@@ -160,11 +160,11 @@ export default compose<TOutter & THandles & TState, TOutter>(
           </a>
         </nav>
 
-        {target.images.map((im, i) => (
+        {target.images.map(({ id, url }, i) => (
           <figure
-            key={im.url.substring(0, 15)}
+            key={id}
             className={i === slide ? 'active' : ''}
-            style={{ backgroundImage: `url(${im.url})` }}
+            style={{ backgroundImage: `url(${url})` }}
           />
         ))}
       </>
@@ -231,7 +231,7 @@ const Slideshow = styled.div`
       z-index: 1;
     }
 
-    &:nth-child(3) {
+    &:not(:first-of-type) {
       transform: translate3d(100%, 0, 0);
     }
   }

@@ -33,7 +33,9 @@ const plugins = [
 ]
 
 const config = {
-  publicRuntimeConfig: {},
+  publicRuntimeConfig: {
+    isDev: process.env.NODE_ENV !== 'production'
+  },
   webpack(config) {
     config.module.rules.push(
       {
@@ -62,7 +64,8 @@ const config = {
 
   exportPathMap() {
     return {
-      '/': { page: '/' }
+      '/': { page: '/home' },
+      '/about': { page: '/about' }
     }
   }
 }

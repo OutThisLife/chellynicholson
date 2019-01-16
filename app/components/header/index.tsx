@@ -1,5 +1,6 @@
 import { size } from '@/theme'
 import Link from 'next/link'
+import { withRouter, WithRouterProps } from 'next/router'
 import { rgba } from 'polished'
 import { compose, setDisplayName, withHandlers } from 'recompose'
 import styled from 'styled-components'
@@ -8,8 +9,9 @@ interface THandles {
   openStory: React.MouseEventHandler<HTMLAnchorElement>
 }
 
-export default compose<THandles, {}>(
+export default compose<WithRouterProps & THandles, {}>(
   setDisplayName('header'),
+  withRouter,
   withHandlers<{}, THandles>(() => ({
     openStory: () => ({ currentTarget }) => {
       const $single = document.getElementById('single')
@@ -27,7 +29,7 @@ export default compose<THandles, {}>(
       }
     }
   }))
-)(({ openStory }) => (
+)(({ router, openStory }) => (
   <Header>
     <Link href="/">
       <a id="logo">chelly &Delta; nicholson</a>
@@ -35,15 +37,15 @@ export default compose<THandles, {}>(
 
     <nav>
       <Link href="/">
-        <a>portfolio</a>
+        <a className={router.asPath === '/' ? 'active' : ''}>portfolio</a>
       </Link>
 
       <Link prefetch href="/about">
-        <a>about</a>
+        <a className={router.route === '/about' ? 'active' : ''}>about</a>
       </Link>
 
       <Link prefetch href="/blog">
-        <a>blog</a>
+        <a className={/blog/.test(router.asPath) ? 'active' : ''}>blog</a>
       </Link>
 
       <a href="//instagram.com/chellynicholson" target="_blank" rel="noopener">
@@ -66,21 +68,16 @@ export default compose<THandles, {}>(
 
 export const Header = styled.header`
   z-index: 100;
-  display: inline-flex;
+  display: grid;
+  grid-template-columns: 0px 1fr auto;
   align-items: center;
-  justify-content: space-between;
+  justify-content: center;
   position: fixed;
   top: 0;
   width: 100%;
   padding: ${size(1)};
 
-  @media (min-width: 768px) {
-    white-space: nowrap;
-  }
-
   @media (max-width: 768px) {
-    flex-wrap: wrap;
-
     &:not(.invert) {
       background: ${({ theme }) => theme.colours.bg};
     }
@@ -88,19 +85,27 @@ export const Header = styled.header`
 
   a {
     display: inline-block;
-    line-height: 0;
-    padding: 10px 7px;
+    line-height: 1;
     text-transform: lowercase;
+    margin: 0 7px;
+    border-bottom: 1px solid transparent;
     transition: ${({ theme }) => theme.timings.base};
+
+    &.active {
+      text-decoration: underline;
+    }
 
     &#logo {
       text-transform: uppercase;
+
+      @media (min-width: 768px) {
+        white-space: nowrap;
+      }
 
       @media (max-width: 768px) {
         display: block;
         width: 100%;
         line-height: inherit;
-        white-space: normal;
         padding: 10px 7px 0;
       }
     }
@@ -124,7 +129,8 @@ export const Header = styled.header`
   }
 
   nav {
-    display: inline-flex;
+    display: flex;
+    justify-content: center;
 
     @media (min-width: 768px) {
       margin-left: ${size(2)};
