@@ -1,5 +1,3 @@
-import 'isomorphic-unfetch'
-
 import { ApolloServer } from 'apollo-server-express'
 import * as compression from 'compression'
 import * as express from 'express'
